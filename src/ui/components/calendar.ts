@@ -149,7 +149,7 @@ class CalendarElement extends HTMLElement {
 
         this.#dayDialog = document.createElement("improved-attendance-day-dialog")
         this.#dayDialog.lang = this.lang
-        document.body.append(this.#dayDialog)
+        this.#shadow.append(this.#dayDialog)
 
         document.addEventListener("keyup", this.#onKeyup)
 
@@ -158,9 +158,6 @@ class CalendarElement extends HTMLElement {
 
     // noinspection JSUnusedGlobalSymbols
     disconnectedCallback(): void {
-        this.#dayDialog?.remove()
-        this.#dayDialog = null
-
         document.removeEventListener("keyup", this.#onKeyup)
     }
 

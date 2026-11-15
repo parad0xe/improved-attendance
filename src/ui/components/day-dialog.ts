@@ -34,7 +34,7 @@ export class DayDialogElement extends HTMLElement {
                 dialog {
                     position: fixed;
                     margin: 0;
-                    padding: 0.75rem;
+                    padding: 0;
                     min-width: 14rem;
                     border: 1px solid var(--border);
                     border-radius: 0.5rem;
@@ -45,7 +45,7 @@ export class DayDialogElement extends HTMLElement {
                 }
                 dialog::backdrop { background: transparent; }
 
-                .root { display: flex; flex-direction: column; gap: 0.5rem; }
+                .root { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; }
                 .header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-weight: 500; }
                 .header button {
                     padding: 0;
@@ -69,16 +69,19 @@ export class DayDialogElement extends HTMLElement {
         this.#rootElement = this.#shadow.querySelector(".root")
         this.#dialogElement = this.#shadow.querySelector("dialog")
 
+        // A click on the backdrop targets the dialog itself.
+        this.#dialogElement?.addEventListener("click", (event) => {
+            if (event.target === this.#dialogElement) this.close()
+        })
+
         this.draw()
 
         document.addEventListener("scroll", this.#onScroll, true)
-        document.addEventListener("click", this.#onDocumentClick)
     }
 
     // noinspection JSUnusedGlobalSymbols
     disconnectedCallback(): void {
         document.removeEventListener("scroll", this.#onScroll, true)
-        document.removeEventListener("click", this.#onDocumentClick)
     }
 
     #onScroll = (): void => {
@@ -87,12 +90,6 @@ export class DayDialogElement extends HTMLElement {
         const rect = this.#dayElement.getBoundingClientRect()
         this.#dialogElement.style.left = `${rect.x}px`
         this.#dialogElement.style.top = `${rect.y + rect.height}px`
-    }
-
-    #onDocumentClick = (event: MouseEvent): void => {
-        if (!this.isOpen || event.composedPath().includes(this)) return
-
-        this.close()
     }
 
     render(
@@ -198,7 +195,7 @@ export class DayDialogElement extends HTMLElement {
         this.#dialogElement.style.left = `${rect.x}px`
         this.#dialogElement.style.top = `${rect.y + rect.height}px`
 
-        this.#dialogElement.show()
+        this.#dialogElement.showModal()
     }
 
     close(): void {
