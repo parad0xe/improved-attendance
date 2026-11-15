@@ -30,6 +30,11 @@ export class PlannedDay {
         this.isManual = isManual
     }
 
+    /** Returns whether time is planned on the day. */
+    hasPlannedTime(): boolean {
+        return !this.isOff && this.plannedMinutes > 0
+    }
+
     /**
      * Returns whether the day is before the day of `now`.
      * @param now - the current date

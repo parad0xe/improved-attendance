@@ -157,7 +157,7 @@ export class MonthPlan {
      * @param now - the current date
      */
     hasPlannedTime(now = new Date()): boolean {
-        return this.isCurrentMonth(now) && this.getPlannedDay(now.getDate())?.isOff === false
+        return this.isCurrentMonth(now) && this.getPlannedDay(now.getDate())?.hasPlannedTime() === true
     }
 
     /**
@@ -165,7 +165,7 @@ export class MonthPlan {
      * @param now - the current date
      */
     private getRemainingDays(now: Date): PlannedDay[] {
-        return [...this.plannedDays.values()].filter((plannedDay) => !plannedDay.isOff && plannedDay.date > now)
+        return [...this.plannedDays.values()].filter((plannedDay) => plannedDay.hasPlannedTime() && plannedDay.date > now)
     }
 
     /**
@@ -272,6 +272,19 @@ export class MonthPlan {
         }
         this.capsules = Math.max(0, Math.min(this.capsules, availableCapsules))
         this.lastSync = planSync
+    }
+
+    /**
+     * Makes `plannedDay` a day off, or a day with planned time, with the default time when it has none.
+     * @param plannedDay - the day of the plan
+     * @param isOff - whether the day is a day off
+     */
+    setDayOff(plannedDay: PlannedDay, isOff: boolean): void {
+        plannedDay.isOff = isOff
+        if (!isOff && plannedDay.plannedMinutes === 0) {
+            plannedDay.plannedMinutes = this.dailyMinutes
+            plannedDay.isManual = false
+        }
     }
 
     /**

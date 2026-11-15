@@ -121,16 +121,16 @@ export class DayDialogElement extends HTMLElement {
 
         const offRowElement = this.createCheckboxRow({
             label: labels.CALENDAR_DAY_DIALOG_OFF,
-            checked: plannedDay.isOff,
+            checked: !plannedDay.hasPlannedTime(),
             onChange: (isOff) => {
-                plannedDay.isOff = isOff
+                plan.setDayOff(plannedDay, isOff)
                 this.#onChange()
                 this.draw()
             },
         })
         this.#rootElement.append(offRowElement)
 
-        if (!plannedDay.isOff) {
+        if (plannedDay.hasPlannedTime()) {
             const plannedTimeRowElement = document.createElement("div")
             plannedTimeRowElement.className = "row"
             plannedTimeRowElement.textContent = labels.CALENDAR_DAY_DIALOG_PLANNED_TIME

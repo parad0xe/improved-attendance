@@ -165,11 +165,11 @@ class CalendarElement extends HTMLElement {
     private createDayElement(plan: MonthPlan, plannedDay: PlannedDay): HTMLDivElement {
         const dayElement = document.createElement("div")
         dayElement.classList.add("day")
-        dayElement.classList.toggle("off", plannedDay.isOff)
+        dayElement.classList.toggle("off", !plannedDay.hasPlannedTime())
         dayElement.textContent = String(plannedDay.date.getDate())
 
         const isPast = plannedDay.isPast()
-        if (!plannedDay.isOff && !isPast && (plannedDay.plannedMinutes !== plan.dailyMinutes || plannedDay.isManual)) {
+        if (plannedDay.hasPlannedTime() && !isPast && (plannedDay.plannedMinutes !== plan.dailyMinutes || plannedDay.isManual)) {
             const workTimeElement = document.createElement("span")
             workTimeElement.classList.add("day-time")
             workTimeElement.textContent = formatMinutes(plannedDay.plannedMinutes)
@@ -192,7 +192,7 @@ class CalendarElement extends HTMLElement {
                 if (this.#dayDialog?.isOpen) {
                     return
                 }
-                plannedDay.isOff = !plannedDay.isOff
+                plan.setDayOff(plannedDay, plannedDay.hasPlannedTime())
                 this.dispatchEvent(new Event("change"))
                 this.draw()
             })
