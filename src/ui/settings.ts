@@ -87,26 +87,29 @@ export class Settings {
         const settingsContainerElement = document.createElement("div")
         settingsContainerElement.className = "improved-attendance-settings-container"
 
-        const daysOffTitleElement = document.createElement("span")
-        daysOffTitleElement.className = "improved-attendance-settings-title"
-        daysOffTitleElement.textContent = this.labels.SETTINGS_DAYS_OFF
+        const daysTitleElement = document.createElement("span")
+        daysTitleElement.className = "improved-attendance-settings-title"
+        daysTitleElement.textContent = this.labels.SETTINGS_DAYS
 
         const calendarElement = document.createElement("improved-attendance-calendar")
         calendarElement.lang = this.lang
         calendarElement.render(plan, attendance.getDayMarks())
         calendarElement.addEventListener("change", onChange)
 
-        const daysOffContainerElement = document.createElement("div")
-        daysOffContainerElement.className = "improved-attendance-days-off-container"
-        daysOffContainerElement.append(daysOffTitleElement, calendarElement)
+        const daysContainerElement = document.createElement("div")
+        daysContainerElement.className = "improved-attendance-days-container"
+        daysContainerElement.append(daysTitleElement, calendarElement)
+
+        for (const hint of [this.labels.CALENDAR_HINT_CLICK, this.labels.CALENDAR_HINT_KEYS]) {
+            const hintElement = document.createElement("span")
+            hintElement.className = "improved-attendance-settings-hint"
+            hintElement.textContent = hint
+            daysContainerElement.append(hintElement)
+        }
 
         const paceTitleElement = document.createElement("span")
         paceTitleElement.className = "improved-attendance-settings-title"
         paceTitleElement.textContent = this.labels.SETTINGS_PACE
-
-        const dailyTimeRowElement = document.createElement("label")
-        dailyTimeRowElement.className = "improved-attendance-settings-row"
-        dailyTimeRowElement.textContent = this.labels.SETTINGS_TIME_PER_REMAINING_DAY
 
         const timeInputElement = document.createElement("improved-attendance-time-input")
         timeInputElement.render(plan.dailyMinutes, (dailyMinutes) => {
@@ -114,21 +117,21 @@ export class Settings {
             onChange()
             calendarElement.draw()
         })
-        dailyTimeRowElement.append(timeInputElement)
 
         const neededDailyTimeElement = document.createElement("span")
-        neededDailyTimeElement.className = "improved-attendance-needed-daily-time"
+        neededDailyTimeElement.className = "improved-attendance-settings-hint"
         this.neededDailyTimeElement = neededDailyTimeElement
 
-        const dailyTimeFieldElement = document.createElement("div")
-        dailyTimeFieldElement.className = "improved-attendance-settings-field"
-        dailyTimeFieldElement.append(dailyTimeRowElement, neededDailyTimeElement)
+        const dailyTimeColumnElement = document.createElement("div")
+        dailyTimeColumnElement.className = "improved-attendance-settings-column"
+        dailyTimeColumnElement.textContent = this.labels.SETTINGS_DAILY_TIME
+        dailyTimeColumnElement.append(timeInputElement, neededDailyTimeElement)
 
         const paceContainerElement = document.createElement("div")
         paceContainerElement.className = "improved-attendance-pace-container"
-        paceContainerElement.append(paceTitleElement, dailyTimeFieldElement)
+        paceContainerElement.append(paceTitleElement, dailyTimeColumnElement)
 
-        settingsContainerElement.append(daysOffContainerElement, paceContainerElement)
+        settingsContainerElement.append(daysContainerElement, paceContainerElement)
 
         if (plan.isCurrentMonth()) {
             const capsulesRowElement = document.createElement("label")

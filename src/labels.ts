@@ -2,9 +2,9 @@ const LANG_COOKIE_KEY = "PARAGLIDE_LOCALE"
 
 export interface Labels {
     SETTINGS_THEME: string
-    SETTINGS_DAYS_OFF: string
+    SETTINGS_DAYS: string
     SETTINGS_PACE: string
-    SETTINGS_TIME_PER_REMAINING_DAY: string
+    SETTINGS_DAILY_TIME: string
     SETTINGS_NEEDED_PER_DAY: (time: string) => string
     SETTINGS_CAPSULES_TO_USE: string
 
@@ -20,6 +20,14 @@ export interface Labels {
     CALENDAR_WEEKDAYS: string[]
     CALENDAR_PUBLIC_HOLIDAY: string
     CALENDAR_CLOSURE: string
+    CALENDAR_MANUAL: string
+    CALENDAR_HINT_CLICK: string
+    CALENDAR_HINT_KEYS: string
+    CALENDAR_DAY_DIALOG_CLOSE: string
+    CALENDAR_DAY_DIALOG_OFF: string
+    CALENDAR_DAY_DIALOG_PLANNED_TIME: string
+    CALENDAR_DAY_DIALOG_MANUAL: string
+    CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time: string) => string
 
     ERROR_WORKDAYS_MISSING: string
     ERROR_DATA_UNAVAILABLE: (status: number) => string
@@ -35,9 +43,9 @@ export interface Labels {
 const LABELS: Record<string, Labels> = {
     fr: {
         SETTINGS_THEME: "Thème",
-        SETTINGS_DAYS_OFF: "Jours de repos",
+        SETTINGS_DAYS: "Jours",
         SETTINGS_PACE: "Rythme",
-        SETTINGS_TIME_PER_REMAINING_DAY: "Temps par jour restant",
+        SETTINGS_DAILY_TIME: "Temps par jour par défaut",
         SETTINGS_NEEDED_PER_DAY: (time) => `Nécessaire : ${time} par jour`,
         SETTINGS_CAPSULES_TO_USE: "Capsules à poser",
 
@@ -52,6 +60,14 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_WEEKDAYS: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
         CALENDAR_PUBLIC_HOLIDAY: "Jour férié",
         CALENDAR_CLOSURE: "Fermeture de l'école",
+        CALENDAR_MANUAL: "Temps gardé",
+        CALENDAR_HINT_CLICK: "Clic : jour de repos · Clic droit : réglages du jour",
+        CALENDAR_HINT_KEYS: "Au survol : M garde le temps, R remet le temps par défaut",
+        CALENDAR_DAY_DIALOG_CLOSE: "Fermer",
+        CALENDAR_DAY_DIALOG_OFF: "Jour de repos",
+        CALENDAR_DAY_DIALOG_PLANNED_TIME: "Temps prévu",
+        CALENDAR_DAY_DIALOG_MANUAL: "Garder ce temps",
+        CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time) => `Temps par défaut : ${time}`,
 
         ERROR_WORKDAYS_MISSING: "les jours ouvrés du mois sont introuvables, la page a peut-être changé",
         ERROR_DATA_UNAVAILABLE: (status) => `impossible de charger les données d'attendance (HTTP ${status})`,
@@ -65,9 +81,9 @@ const LABELS: Record<string, Labels> = {
     },
     en: {
         SETTINGS_THEME: "Theme",
-        SETTINGS_DAYS_OFF: "Days off",
+        SETTINGS_DAYS: "Days",
         SETTINGS_PACE: "Pace",
-        SETTINGS_TIME_PER_REMAINING_DAY: "Time per remaining day",
+        SETTINGS_DAILY_TIME: "Default time per day",
         SETTINGS_NEEDED_PER_DAY: (time) => `Needed: ${time} per day`,
         SETTINGS_CAPSULES_TO_USE: "Capsules to use",
 
@@ -82,6 +98,14 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_WEEKDAYS: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         CALENDAR_PUBLIC_HOLIDAY: "Public holiday",
         CALENDAR_CLOSURE: "School closure",
+        CALENDAR_MANUAL: "Kept time",
+        CALENDAR_HINT_CLICK: "Click: day off · Right-click: day settings",
+        CALENDAR_HINT_KEYS: "Over a day: M keeps the time, R sets the default time",
+        CALENDAR_DAY_DIALOG_CLOSE: "Close",
+        CALENDAR_DAY_DIALOG_OFF: "Day off",
+        CALENDAR_DAY_DIALOG_PLANNED_TIME: "Planned time",
+        CALENDAR_DAY_DIALOG_MANUAL: "Keep this time",
+        CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time) => `Default time: ${time}`,
 
         ERROR_WORKDAYS_MISSING: "the working days of the month are missing, the page may have changed",
         ERROR_DATA_UNAVAILABLE: (status) => `cannot load the attendance data (HTTP ${status})`,

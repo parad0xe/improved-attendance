@@ -38,13 +38,13 @@
 }
 [data-collapsible="icon"] .improved-attendance-settings { display: none; }
 .improved-attendance-settings-container { display: flex; flex-direction: column; gap: 0.75rem; }
-.improved-attendance-days-off-container,
+.improved-attendance-days-container,
 .improved-attendance-pace-container { display: flex; flex-direction: column; gap: 0.5rem; }
 .improved-attendance-pace-container,
 .improved-attendance-settings-container + .improved-attendance-footer-container { padding-top: 0.75rem; border-top: 1px solid var(--sidebar-border); }
-.improved-attendance-settings-field { display: flex; flex-direction: column; gap: 0.25rem; }
+.improved-attendance-settings-column { display: flex; flex-direction: column; gap: 0.25rem; }
 .improved-attendance-settings-title { font-size: 0.75rem; font-weight: 500; color: var(--muted-foreground); }
-.improved-attendance-settings-row { display: flex; justify-content: space-between; flex-direction: column; gap: 0.5rem; }
+.improved-attendance-settings-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
 .improved-attendance-settings-row input {
     width: 4rem;
     padding: 0.125rem 0.375rem;
@@ -53,7 +53,7 @@
     background: transparent;
     color: inherit;
 }
-.improved-attendance-needed-daily-time { font-size: 0.75rem; color: var(--muted-foreground); }
+.improved-attendance-settings-hint { font-size: 0.75rem; color: var(--muted-foreground); }
 
 .improved-attendance-footer-container { display: flex; flex-direction: column; gap: 0.75rem; }
 .improved-attendance-credit { font-size: 0.75rem; color: var(--muted-foreground); }

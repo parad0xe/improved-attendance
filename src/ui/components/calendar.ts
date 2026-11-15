@@ -3,8 +3,8 @@ import type {DayMark} from "../../models/attendance"
 import type {MonthPlan} from "../../models/month-plan/month-plan"
 import {PlannedDay} from "../../models/month-plan/planned-day"
 import {formatMinutes} from "../../lib/time"
-import {PlannedDayDialogElement} from "./planned-day-dialog"
-import "./planned-day-dialog"
+import type { DayDialogElement } from "./day-dialog"
+import "./day-dialog"
 
 /** Shows the days of a plan, toggles its days off and dispatches `change`. */
 class CalendarElement extends HTMLElement {
@@ -16,7 +16,7 @@ class CalendarElement extends HTMLElement {
     #gridElement: Element | null
     #legendElement: Element | null
 
-    #plannedDayDialog: PlannedDayDialogElement | null
+    #dayDialog: DayDialogElement | null
     #hoveredDay: {
         element: HTMLDivElement
         plannedDay: PlannedDay
@@ -32,7 +32,7 @@ class CalendarElement extends HTMLElement {
         this.#gridElement = null
         this.#legendElement = null
 
-        this.#plannedDayDialog = null
+        this.#dayDialog = null
         this.#hoveredDay = null
     }
 
@@ -40,20 +40,20 @@ class CalendarElement extends HTMLElement {
     connectedCallback(): void {
         this.#shadow.innerHTML = `
             <style>
-                .calendar-grid {
+                .grid {
                     width: 100%;
                     display: grid;
                     grid-template-columns: repeat(7, 1fr);
                     gap: 2px;
                 }
 
-                .calendar-weekday {
+                .weekday {
                     text-align: center;
                     font-size: 0.625rem;
                     color: var(--muted-foreground);
                 }
 
-                .calendar-day {
+                .day {
                     position: relative;
                     padding: 7px 2px;
                     border: 1px solid var(--improved-attendance-day-border);
@@ -64,28 +64,28 @@ class CalendarElement extends HTMLElement {
                     cursor: pointer;
                     transition: background-color 150ms, border-color 150ms;
                 }
-                .calendar-day:not(.past):not(.day-off):hover {
+                .day:not(.past):not(.day-off):hover {
                     background: var(--improved-attendance-day-hover);
                 }
-                .calendar-day.day-off {
+                .day.day-off {
                     background: var(--improved-attendance-day-off-background);
                     border-color: var(--improved-attendance-day-off-border);
                     color: var(--improved-attendance-day-off-text);
                     font-weight: 500;
                 }
-                .calendar-day.day-off:not(.past):hover {
+                .day.day-off:not(.past):hover {
                     border-color: var(--improved-attendance-day-off-text);
                 }
-                .calendar-day.past {
+                .day.past {
                     border-color: var(--improved-attendance-past-day-border);
                     color: var(--improved-attendance-past-day-text);
                     cursor: default;
                 }
-                .calendar-day.past.day-off {
+                .day.past.day-off {
                     background: var(--improved-attendance-past-day-off-background);
                     font-weight: normal;
                 }
-                .calendar-day.manual::before {
+                .day.manual::before {
                     content: "";
                     position: absolute;
                     display: block;
@@ -94,41 +94,41 @@ class CalendarElement extends HTMLElement {
                     width: 4px;
                     height: 4px;
                     border-radius: 50%;
-                    background: var(--improved-attendance-manual-day-background);
+                    background: var(--improved-attendance-manual-day-dot);
                 }
-                .calendar-day.manual.past::before {
+                .day.manual.past::before {
                     opacity: 0.8;
                 }
 
-                .calendar-day.public-holiday::after,
-                .calendar-day.closure::after,
-                .calendar-legend-mark::before {
+                .day.public-holiday::after,
+                .day.closure::after,
+                .legend-mark::before {
                     content: "";
                     display: block;
                     width: 10px;
                     height: 2px;
                     border-radius: 10px;
                 }
-                .calendar-day.public-holiday::after,
-                .calendar-day.closure::after {
+                .day.public-holiday::after,
+                .day.closure::after {
                     position: absolute;
                     top: 3px;
                     left: calc(50% - 5px);
                 }
-                .calendar-day.past::after { opacity: 0.7; }
-                .public-holiday::after, .calendar-legend-mark.public-holiday::before { background: var(--improved-attendance-public-holiday); }
-                .closure::after, .calendar-legend-mark.closure::before { background: var(--improved-attendance-closure); }
+                .day.past::after { opacity: 0.7; }
+                .public-holiday::after, .legend-mark.public-holiday::before { background: var(--improved-attendance-public-holiday); }
+                .closure::after, .legend-mark.closure::before { background: var(--improved-attendance-closure); }
                 
-                .calendar-day-worktime {
+                .day-time {
                     font-size: 8px;
                     position: absolute;
-                    color: rgb(135, 140, 73);
+                    color: var(--improved-attendance-day-time);
                     bottom: -3px;
                     right: 0;
                     left: 0;
                 }
                 
-                .calendar-legend {
+                .legend {
                     display: flex;
                     flex-wrap: wrap;
                     gap: 0.25rem 0.75rem;
@@ -136,18 +136,20 @@ class CalendarElement extends HTMLElement {
                     font-size: 0.625rem;
                     color: var(--muted-foreground);
                 }
-                .calendar-legend-mark { display: flex; align-items: center; gap: 0.25rem; }
+                .legend-mark { display: flex; align-items: center; gap: 0.25rem; }
+                .legend-mark.manual::before { width: 4px; height: 4px; border-radius: 50%; background: var(--improved-attendance-manual-day-dot); }
             </style>
 
-            <div class="calendar-grid"></div>
-            <div class="calendar-legend"></div>
+            <div class="grid"></div>
+            <div class="legend"></div>
         `
 
-        this.#gridElement = this.#shadow.querySelector(".calendar-grid")
-        this.#legendElement = this.#shadow.querySelector(".calendar-legend")
+        this.#gridElement = this.#shadow.querySelector(".grid")
+        this.#legendElement = this.#shadow.querySelector(".legend")
 
-        this.#plannedDayDialog = document.createElement("improved-attendance-planned-day-dialog")
-        document.body.append(this.#plannedDayDialog)
+        this.#dayDialog = document.createElement("improved-attendance-day-dialog")
+        this.#dayDialog.lang = this.lang
+        document.body.append(this.#dayDialog)
 
         document.addEventListener("keyup", this.#onKeyup)
 
@@ -156,8 +158,8 @@ class CalendarElement extends HTMLElement {
 
     // noinspection JSUnusedGlobalSymbols
     disconnectedCallback(): void {
-        this.#plannedDayDialog?.remove()
-        this.#plannedDayDialog = null
+        this.#dayDialog?.remove()
+        this.#dayDialog = null
 
         document.removeEventListener("keyup", this.#onKeyup)
     }
@@ -211,7 +213,7 @@ class CalendarElement extends HTMLElement {
 
         for (const weekday of getLabels(this.lang).CALENDAR_WEEKDAYS) {
             const weekdayElement = document.createElement("div")
-            weekdayElement.classList.add("calendar-weekday")
+            weekdayElement.classList.add("weekday")
             weekdayElement.textContent = weekday
             this.#gridElement.append(weekdayElement)
         }
@@ -229,9 +231,16 @@ class CalendarElement extends HTMLElement {
         this.#legendElement.replaceChildren()
         for (const mark of new Set(this.#dayMarks.values())) {
             const markElement = document.createElement("span")
-            markElement.classList.add("calendar-legend-mark", mark)
+            markElement.classList.add("legend-mark", mark)
             markElement.textContent = this.getMarkLabel(mark)
             this.#legendElement.append(markElement)
+        }
+
+        if ([...this.#plan.plannedDays.values()].some((plannedDay) => plannedDay.isManual)) {
+            const manualElement = document.createElement("span")
+            manualElement.classList.add("legend-mark", "manual")
+            manualElement.textContent = getLabels(this.lang).CALENDAR_MANUAL
+            this.#legendElement.append(manualElement)
         }
     }
 
@@ -253,14 +262,14 @@ class CalendarElement extends HTMLElement {
      */
     private createDayElement(plan: MonthPlan, plannedDay: PlannedDay): HTMLDivElement {
         const dayElement = document.createElement("div")
-        dayElement.classList.add("calendar-day")
+        dayElement.classList.add("day")
         dayElement.classList.toggle("day-off", plannedDay.isOff)
         dayElement.textContent = String(plannedDay.date.getDate())
 
         const isPast = plannedDay.isPast()
         if (!plannedDay.isOff && !isPast && (plannedDay.plannedMinutes !== plan.dailyMinutes || plannedDay.isManual)) {
             const workTimeElement = document.createElement("span")
-            workTimeElement.classList.add("calendar-day-worktime")
+            workTimeElement.classList.add("day-time")
             workTimeElement.textContent = formatMinutes(plannedDay.plannedMinutes)
             dayElement.append(workTimeElement)
         }
@@ -278,7 +287,7 @@ class CalendarElement extends HTMLElement {
             dayElement.classList.add("past")
         } else {
             dayElement.addEventListener("click", () => {
-                if (this.#plannedDayDialog?.isOpen) {
+                if (this.#dayDialog?.isOpen) {
                     return
                 }
                 plannedDay.isOff = !plannedDay.isOff
@@ -303,7 +312,7 @@ class CalendarElement extends HTMLElement {
             if (isPast) return
 
             event.preventDefault()
-            this.#plannedDayDialog?.open(
+            this.#dayDialog?.open(
                 plan,
                 dayElement,
                 plannedDay,

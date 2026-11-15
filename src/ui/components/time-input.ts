@@ -21,7 +21,7 @@ export class TimeInputElement extends HTMLElement {
             <style>
                 .root { display: flex; flex-shrink: 0; align-items: center; gap: 0.25rem; }
                 .root input {
-                    padding: 0.5rem;
+                    padding: 0.125rem 0.375rem;
                     width: 3rem;
                     border: 1px solid var(--input);
                     border-radius: 0.375rem;
