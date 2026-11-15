@@ -5,6 +5,15 @@ import type { PlannedDay } from "../../../models/month-plan/planned-day"
 import "../time-input/time-input"
 import DAY_DIALOG_STYLE from "./day-dialog.css"
 
+interface CheckboxRowOptions {
+    /** The label of the checkbox. */
+    label: string
+    /** Whether the checkbox is checked. */
+    checked: boolean
+    /** Called with the new state after each change of the checkbox. */
+    onChange: (checked: boolean) => void
+}
+
 export class DayDialogElement extends HTMLElement {
     #shadow: ShadowRoot
     #rootElement: HTMLElement | null
@@ -91,9 +100,16 @@ export class DayDialogElement extends HTMLElement {
         const plan = this.#plan
         const plannedDay = this.#plannedDay
 
+        this.#rootElement.replaceChildren()
+
+        const headerElement = document.createElement("div")
+        headerElement.className = "header"
+        this.#rootElement.append(headerElement)
+
         const title = plannedDay.date.toLocaleDateString(this.lang || undefined, { weekday: "long", day: "numeric", month: "long" })
         const titleElement = document.createElement("span")
         titleElement.textContent = title.charAt(0).toUpperCase() + title.slice(1)
+        headerElement.append(titleElement)
 
         const closeButtonElement = document.createElement("button")
         closeButtonElement.type = "button"
@@ -101,32 +117,25 @@ export class DayDialogElement extends HTMLElement {
         closeButtonElement.title = labels.CALENDAR_DAY_DIALOG_CLOSE
         closeButtonElement.setAttribute("aria-label", labels.CALENDAR_DAY_DIALOG_CLOSE)
         closeButtonElement.addEventListener("click", () => this.close())
+        headerElement.append(closeButtonElement)
 
-        const headerElement = document.createElement("div")
-        headerElement.className = "header"
-        headerElement.append(titleElement, closeButtonElement)
-
-        const createCheckboxRow = (label: string, checked: boolean, onChange: (checked: boolean) => void): HTMLLabelElement => {
-            const checkboxElement = document.createElement("input")
-            checkboxElement.type = "checkbox"
-            checkboxElement.checked = checked
-            checkboxElement.addEventListener("change", () => onChange(checkboxElement.checked))
-
-            const rowElement = document.createElement("label")
-            rowElement.className = "row"
-            rowElement.append(checkboxElement, label)
-            return rowElement
-        }
-
-        const offRowElement = createCheckboxRow(labels.CALENDAR_DAY_DIALOG_OFF, plannedDay.isOff, (isOff) => {
-            plannedDay.isOff = isOff
-            this.#onChange()
-            this.draw()
+        const offRowElement = this.createCheckboxRow({
+            label: labels.CALENDAR_DAY_DIALOG_OFF,
+            checked: plannedDay.isOff,
+            onChange: (isOff) => {
+                plannedDay.isOff = isOff
+                this.#onChange()
+                this.draw()
+            },
         })
-
-        this.#rootElement.replaceChildren(headerElement, offRowElement)
+        this.#rootElement.append(offRowElement)
 
         if (!plannedDay.isOff) {
+            const plannedTimeRowElement = document.createElement("div")
+            plannedTimeRowElement.className = "row"
+            plannedTimeRowElement.textContent = labels.CALENDAR_DAY_DIALOG_PLANNED_TIME
+            this.#rootElement.append(plannedTimeRowElement)
+
             const timeInputElement = document.createElement("improved-attendance-time-input")
             timeInputElement.render(plannedDay.plannedMinutes, (plannedMinutes) => {
                 plannedDay.plannedMinutes = plannedMinutes
@@ -134,23 +143,36 @@ export class DayDialogElement extends HTMLElement {
                 this.#onChange()
                 this.draw()
             })
+            plannedTimeRowElement.append(timeInputElement)
 
-            const plannedTimeRowElement = document.createElement("div")
-            plannedTimeRowElement.className = "row"
-            plannedTimeRowElement.append(labels.CALENDAR_DAY_DIALOG_PLANNED_TIME, timeInputElement)
-
-            const manualRowElement = createCheckboxRow(labels.CALENDAR_DAY_DIALOG_MANUAL, plannedDay.isManual, (isManual) => {
-                plannedDay.isManual = isManual
-                this.#onChange()
+            const manualRowElement = this.createCheckboxRow({
+                label: labels.CALENDAR_DAY_DIALOG_MANUAL,
+                checked: plannedDay.isManual,
+                onChange: (isManual) => {
+                    plannedDay.isManual = isManual
+                    this.#onChange()
+                },
             })
-
-            this.#rootElement.append(plannedTimeRowElement, manualRowElement)
+            this.#rootElement.append(manualRowElement)
         }
 
         const hintElement = document.createElement("span")
         hintElement.className = "hint"
         hintElement.textContent = labels.CALENDAR_DAY_DIALOG_DEFAULT_TIME(formatMinutes(plan.dailyMinutes))
         this.#rootElement.append(hintElement)
+    }
+
+    /** Creates a row with a checkbox and its label. */
+    private createCheckboxRow({ label, checked, onChange }: CheckboxRowOptions): HTMLLabelElement {
+        const rowElement = document.createElement("label")
+        rowElement.className = "row"
+
+        const checkboxElement = document.createElement("input")
+        checkboxElement.type = "checkbox"
+        checkboxElement.checked = checked
+        checkboxElement.addEventListener("change", () => onChange(checkboxElement.checked))
+        rowElement.append(checkboxElement, label)
+        return rowElement
     }
 
     open(

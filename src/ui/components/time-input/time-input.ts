@@ -48,6 +48,7 @@ export class TimeInputElement extends HTMLElement {
         hoursInputElement.min = "0"
         hoursInputElement.max = "24"
         hoursInputElement.step = "1"
+        this.#rootElement.append(hoursInputElement, "h")
 
         // -1 and 60 let the arrows carry over to the hours.
         const minutesInputElement = document.createElement("input")
@@ -55,6 +56,7 @@ export class TimeInputElement extends HTMLElement {
         minutesInputElement.min = "-1"
         minutesInputElement.max = "60"
         minutesInputElement.step = "1"
+        this.#rootElement.append(minutesInputElement)
 
         const renderTime = () => {
             const minutes = this.#minutes ?? 0
@@ -75,8 +77,6 @@ export class TimeInputElement extends HTMLElement {
 
         hoursInputElement.addEventListener("change", onChange)
         minutesInputElement.addEventListener("change", onChange)
-
-        this.#rootElement.append(hoursInputElement, "h", minutesInputElement)
     }
 }
 

@@ -230,11 +230,12 @@ export class Page {
             const gapMonthEndLabelElement = document.createElement("span")
             gapMonthEndLabelElement.className = "improved-attendance-gap-label"
             gapMonthEndLabelElement.textContent = this.labels.GAP_MONTH_END
+            gapMonthEndContainerElement.append(gapMonthEndLabelElement)
 
             const gapMonthEndTimeElement = document.createElement("strong")
             gapMonthEndTimeElement.classList.add("improved-attendance-gap-value", isMonthEndBonus ? "improved-attendance-bonus" : "improved-attendance-missing")
             gapMonthEndTimeElement.textContent = `${isMonthEndBonus ? "+" : ""}${formatMinutes(monthEndMinutes)}`
-            gapMonthEndContainerElement.append(gapMonthEndLabelElement, gapMonthEndTimeElement)
+            gapMonthEndContainerElement.append(gapMonthEndTimeElement)
 
             if (plan.capsules > 0) {
                 const gapCapsuleContainerElement = document.createElement("span")
