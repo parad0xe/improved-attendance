@@ -53,6 +53,18 @@
     color: inherit;
 }
 .improved-attendance-settings-hint { font-size: 0.75rem; color: var(--muted-foreground); }
+.improved-attendance-settings-info {
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    line-height: 1;
+    cursor: pointer;
+}
 
 .improved-attendance-footer-container { display: flex; flex-direction: column; gap: 0.75rem; }
 .improved-attendance-credit { font-size: 0.75rem; color: var(--muted-foreground); }

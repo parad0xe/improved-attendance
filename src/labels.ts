@@ -3,6 +3,7 @@ const LANG_COOKIE_KEY = "PARAGLIDE_LOCALE"
 export interface Labels {
     SETTINGS_THEME: string
     SETTINGS_DAYS: string
+    SETTINGS_DAYS_HELP: string
     SETTINGS_PACE: string
     SETTINGS_DAILY_TIME: string
     SETTINGS_NEEDED_PER_DAY: (time: string) => string
@@ -21,8 +22,7 @@ export interface Labels {
     CALENDAR_PUBLIC_HOLIDAY: string
     CALENDAR_CLOSURE: string
     CALENDAR_MANUAL: string
-    CALENDAR_HINT_CLICK: string
-    CALENDAR_HINT_KEYS: string
+    CALENDAR_HINTS: { key: string, action: string }[]
     CALENDAR_DAY_DIALOG_CLOSE: string
     CALENDAR_DAY_DIALOG_OFF: string
     CALENDAR_DAY_DIALOG_PLANNED_TIME: string
@@ -44,6 +44,7 @@ const LABELS: Record<string, Labels> = {
     fr: {
         SETTINGS_THEME: "Thème",
         SETTINGS_DAYS: "Jours",
+        SETTINGS_DAYS_HELP: "Aide",
         SETTINGS_PACE: "Rythme",
         SETTINGS_DAILY_TIME: "Temps par jour par défaut",
         SETTINGS_NEEDED_PER_DAY: (time) => `Nécessaire : ${time} par jour`,
@@ -61,8 +62,12 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_PUBLIC_HOLIDAY: "Jour férié",
         CALENDAR_CLOSURE: "Fermeture de l'école",
         CALENDAR_MANUAL: "Temps gardé",
-        CALENDAR_HINT_CLICK: "Clic : jour de repos · Clic droit : réglages du jour",
-        CALENDAR_HINT_KEYS: "Au survol : M garde le temps, R remet le temps par défaut",
+        CALENDAR_HINTS: [
+            { key: "Clic gauche", action: "jour de repos" },
+            { key: "Clic droit", action: "réglages du jour" },
+            { key: "M", action: "garder le temps (au survol)" },
+            { key: "R", action: "temps par défaut (au survol)" },
+        ],
         CALENDAR_DAY_DIALOG_CLOSE: "Fermer",
         CALENDAR_DAY_DIALOG_OFF: "Jour de repos",
         CALENDAR_DAY_DIALOG_PLANNED_TIME: "Temps prévu",
@@ -82,6 +87,7 @@ const LABELS: Record<string, Labels> = {
     en: {
         SETTINGS_THEME: "Theme",
         SETTINGS_DAYS: "Days",
+        SETTINGS_DAYS_HELP: "Help",
         SETTINGS_PACE: "Pace",
         SETTINGS_DAILY_TIME: "Default time per day",
         SETTINGS_NEEDED_PER_DAY: (time) => `Needed: ${time} per day`,
@@ -99,8 +105,12 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_PUBLIC_HOLIDAY: "Public holiday",
         CALENDAR_CLOSURE: "School closure",
         CALENDAR_MANUAL: "Kept time",
-        CALENDAR_HINT_CLICK: "Click: day off · Right-click: day settings",
-        CALENDAR_HINT_KEYS: "Over a day: M keeps the time, R sets the default time",
+        CALENDAR_HINTS: [
+            { key: "Left click", action: "day off" },
+            { key: "Right click", action: "day settings" },
+            { key: "M", action: "keep the time (over a day)" },
+            { key: "R", action: "default time (over a day)" },
+        ],
         CALENDAR_DAY_DIALOG_CLOSE: "Close",
         CALENDAR_DAY_DIALOG_OFF: "Day off",
         CALENDAR_DAY_DIALOG_PLANNED_TIME: "Planned time",

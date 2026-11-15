@@ -91,21 +91,43 @@ export class Settings {
         daysTitleElement.className = "improved-attendance-settings-title"
         daysTitleElement.textContent = this.labels.SETTINGS_DAYS
 
+        const daysHelpButtonElement = document.createElement("button")
+        daysHelpButtonElement.type = "button"
+        daysHelpButtonElement.className = "improved-attendance-settings-info"
+        daysHelpButtonElement.textContent = "?"
+        daysHelpButtonElement.title = this.labels.SETTINGS_DAYS_HELP
+        daysHelpButtonElement.setAttribute("aria-label", this.labels.SETTINGS_DAYS_HELP)
+        daysHelpButtonElement.setAttribute("aria-expanded", "false")
+
+        const daysHeaderElement = document.createElement("div")
+        daysHeaderElement.className = "improved-attendance-settings-row"
+        daysHeaderElement.append(daysTitleElement, daysHelpButtonElement)
+
         const calendarElement = document.createElement("improved-attendance-calendar")
         calendarElement.lang = this.lang
         calendarElement.render(plan, attendance.getDayMarks())
         calendarElement.addEventListener("change", onChange)
 
-        const daysContainerElement = document.createElement("div")
-        daysContainerElement.className = "improved-attendance-days-container"
-        daysContainerElement.append(daysTitleElement, calendarElement)
+        const daysHintElements = this.labels.CALENDAR_HINTS.map(({ key, action }) => {
+            const keyElement = document.createElement("strong")
+            keyElement.textContent = key
 
-        for (const hint of [this.labels.CALENDAR_HINT_CLICK, this.labels.CALENDAR_HINT_KEYS]) {
             const hintElement = document.createElement("span")
             hintElement.className = "improved-attendance-settings-hint"
-            hintElement.textContent = hint
-            daysContainerElement.append(hintElement)
-        }
+            hintElement.append(keyElement, ` ${action}`)
+            hintElement.hidden = true
+            return hintElement
+        })
+        daysHelpButtonElement.addEventListener("click", () => {
+            for (const hintElement of daysHintElements) {
+                hintElement.hidden = !hintElement.hidden
+            }
+            daysHelpButtonElement.setAttribute("aria-expanded", String(!daysHintElements[0].hidden))
+        })
+
+        const daysContainerElement = document.createElement("div")
+        daysContainerElement.className = "improved-attendance-days-container"
+        daysContainerElement.append(daysHeaderElement, calendarElement, ...daysHintElements)
 
         const paceTitleElement = document.createElement("span")
         paceTitleElement.className = "improved-attendance-settings-title"
