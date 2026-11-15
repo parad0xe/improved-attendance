@@ -1,21 +1,18 @@
-import type {MonthPlan} from "../../models/month-plan/month-plan"
-
 export class TimeInputElement extends HTMLElement {
     #shadow: ShadowRoot
     #rootElement: HTMLElement | null
 
-    #defaultValueInMinutes: number | null
+    #minutes: number | null
 
-    #onChange: (hours: number, minutes: number) => void
+    #onChange: (minutes: number) => void
 
     constructor() {
         super()
         this.#rootElement = null
-        this.#defaultValueInMinutes = null
-        this.#onChange = () => {
-        }
+        this.#minutes = null
+        this.#onChange = () => {}
 
-        this.#shadow = this.attachShadow({mode: "open"})
+        this.#shadow = this.attachShadow({ mode: "open" })
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -32,7 +29,7 @@ export class TimeInputElement extends HTMLElement {
                     color: inherit;
                 }
             </style>
-            
+
             <span class="root"></span>
         `
 
@@ -40,14 +37,14 @@ export class TimeInputElement extends HTMLElement {
         this.draw()
     }
 
-    render(defaultValue: number, onChange: (hours: number, minutes: number) => void): void {
-        this.#defaultValueInMinutes = defaultValue
+    render(minutes: number, onChange: (minutes: number) => void): void {
+        this.#minutes = minutes
         this.#onChange = onChange
         this.draw()
     }
 
     private draw(): void {
-        if (this.#defaultValueInMinutes === null || !this.#rootElement) {
+        if (this.#minutes === null || !this.#rootElement) {
             return
         }
 
@@ -58,7 +55,6 @@ export class TimeInputElement extends HTMLElement {
         hoursInputElement.min = "0"
         hoursInputElement.max = "24"
         hoursInputElement.step = "1"
-        hoursInputElement.value = String(Math.floor(this.#defaultValueInMinutes / 60))
 
         // -1 and 60 let the arrows carry over to the hours.
         const minutesInputElement = document.createElement("input")
@@ -66,33 +62,21 @@ export class TimeInputElement extends HTMLElement {
         minutesInputElement.min = "-1"
         minutesInputElement.max = "60"
         minutesInputElement.step = "1"
-        minutesInputElement.value = String(this.#defaultValueInMinutes % 60)
-
 
         const renderTime = () => {
-            if (this.#defaultValueInMinutes === null) {
-                return
-            }
-            const hours = hoursInputElement.valueAsNumber
-            const minutes = minutesInputElement.valueAsNumber
-
-            const dailyMinutes = Math.min(Math.max(0, Math.round(hours * 60 + minutes)), 24 * 60)
-
-            hoursInputElement.value = String(Math.floor(dailyMinutes / 60))
-            minutesInputElement.value = String(dailyMinutes % 60)
+            const minutes = this.#minutes ?? 0
+            hoursInputElement.value = String(Math.floor(minutes / 60))
+            minutesInputElement.value = String(minutes % 60)
         }
         renderTime()
 
         const onChange = (): void => {
             const hours = hoursInputElement.valueAsNumber
             const minutes = minutesInputElement.valueAsNumber
-
-            if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
-                renderTime()
-                return
+            if (Number.isFinite(hours) && Number.isFinite(minutes)) {
+                this.#minutes = Math.min(Math.max(0, Math.round(hours * 60 + minutes)), 24 * 60)
+                this.#onChange(this.#minutes)
             }
-
-            this.#onChange(hours, minutes)
             renderTime()
         }
 

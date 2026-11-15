@@ -109,9 +109,8 @@ export class Settings {
         dailyTimeRowElement.textContent = this.labels.SETTINGS_TIME_PER_REMAINING_DAY
 
         const timeInputElement = document.createElement("improved-attendance-time-input")
-        timeInputElement.render(plan.dailyMinutes, (hours, minutes) => {
-            const dailyMinutes = Math.min(Math.max(0, Math.round(hours * 60 + minutes)), 24 * 60)
-            plan.setGenericDailyWorkTime(dailyMinutes)
+        timeInputElement.render(plan.dailyMinutes, (dailyMinutes) => {
+            plan.setDailyMinutes(dailyMinutes)
             onChange()
             calendarElement.draw()
         })

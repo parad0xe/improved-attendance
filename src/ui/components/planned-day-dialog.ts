@@ -126,14 +126,11 @@ export class PlannedDayDialogElement extends HTMLElement {
         const workTimeContainer = document.createElement("div")
 
         const timeInputElement = document.createElement("improved-attendance-time-input")
-        timeInputElement.render(this.#plannedDay.workTimeMinutes, (hours, minutes) => {
-            const dailyMinutes = Math.min(
-                Math.max(0, Math.round(hours * 60 + minutes)),
-                24 * 60
-            )
+        timeInputElement.render(this.#plannedDay.plannedMinutes, (plannedMinutes) => {
+            if (!this.#plannedDay || !this.#plan) return
 
-            this.#plannedDay?.setWorkTime(dailyMinutes)
-            this.#plannedDay?.setManual(dailyMinutes !== this.#plan?.dailyMinutes)
+            this.#plannedDay.plannedMinutes = plannedMinutes
+            this.#plannedDay.isManual = plannedMinutes !== this.#plan.dailyMinutes
             this.#onChange()
             this.draw()
         })
@@ -169,7 +166,9 @@ export class PlannedDayDialogElement extends HTMLElement {
             "Jour de repos",
             this.#plannedDay.isOff,
             (checked) => {
-                this.#plannedDay?.setOff(checked)
+                if (!this.#plannedDay) return
+
+                this.#plannedDay.isOff = checked
                 this.#onChange()
             }
         )
@@ -178,7 +177,9 @@ export class PlannedDayDialogElement extends HTMLElement {
             "Manuel",
             this.#plannedDay.isManual,
             (checked) => {
-                this.#plannedDay?.setManual(checked)
+                if (!this.#plannedDay) return
+
+                this.#plannedDay.isManual = checked
                 this.#onChange()
             }
         )

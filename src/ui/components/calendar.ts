@@ -168,7 +168,7 @@ class CalendarElement extends HTMLElement {
         const {plannedDay} = this.#hoveredDay
 
         if (event.key === "m") {
-            plannedDay.toggleManual()
+            plannedDay.isManual = !plannedDay.isManual
 
             this.dispatchEvent(new Event("change"))
             this.draw()
@@ -176,9 +176,9 @@ class CalendarElement extends HTMLElement {
         }
 
         if (event.key === "r") {
-            plannedDay.setManual(false)
+            plannedDay.isManual = false
             if (this.#plan) {
-                plannedDay.setWorkTime(this.#plan.dailyMinutes)
+                plannedDay.plannedMinutes = this.#plan.dailyMinutes
             }
 
             this.dispatchEvent(new Event("change"))
@@ -255,15 +255,13 @@ class CalendarElement extends HTMLElement {
         const dayElement = document.createElement("div")
         dayElement.classList.add("calendar-day")
         dayElement.classList.toggle("day-off", plannedDay.isOff)
-        dayElement.textContent = String(plannedDay.day)
+        dayElement.textContent = String(plannedDay.date.getDate())
 
-        if (plannedDay.isWorkday()
-            && !plannedDay.isPast
-            && (plannedDay.workTimeMinutes != plan.dailyMinutes || plannedDay.isManual)
-        ) {
+        const isPast = plannedDay.isPast()
+        if (!plannedDay.isOff && !isPast && (plannedDay.plannedMinutes !== plan.dailyMinutes || plannedDay.isManual)) {
             const workTimeElement = document.createElement("span")
             workTimeElement.classList.add("calendar-day-worktime")
-            workTimeElement.textContent = String(formatMinutes(plannedDay.workTimeMinutes))
+            workTimeElement.textContent = formatMinutes(plannedDay.plannedMinutes)
             dayElement.append(workTimeElement)
         }
 
@@ -276,7 +274,6 @@ class CalendarElement extends HTMLElement {
             dayElement.classList.add("manual")
         }
 
-        const isPast = new Date(plan.year, plan.monthIndex, plannedDay.day).getTime() < new Date().setHours(0, 0, 0, 0)
         if (isPast) {
             dayElement.classList.add("past")
         } else {
@@ -284,7 +281,7 @@ class CalendarElement extends HTMLElement {
                 if (this.#plannedDayDialog?.isOpen) {
                     return
                 }
-                plannedDay.toggleOff()
+                plannedDay.isOff = !plannedDay.isOff
                 this.dispatchEvent(new Event("change"))
                 this.draw()
             })
@@ -303,7 +300,7 @@ class CalendarElement extends HTMLElement {
         })
 
         dayElement.addEventListener("contextmenu", (event) => {
-            if (plannedDay.isPast) return
+            if (isPast) return
 
             event.preventDefault()
             this.#plannedDayDialog?.open(
