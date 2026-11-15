@@ -149,8 +149,9 @@ export class DayDialogElement extends HTMLElement {
                 label: labels.CALENDAR_DAY_DIALOG_MANUAL,
                 checked: plannedDay.isManual,
                 onChange: (isManual) => {
-                    plannedDay.isManual = isManual
+                    plan.setManual(plannedDay, isManual)
                     this.#onChange()
+                    this.draw()
                 },
             })
             this.#rootElement.append(manualRowElement)

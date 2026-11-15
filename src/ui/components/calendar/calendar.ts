@@ -72,7 +72,7 @@ class CalendarElement extends HTMLElement {
         const {plannedDay} = this.#hoveredDay
 
         if (event.key === "m") {
-            plannedDay.isManual = !plannedDay.isManual
+            this.#plan?.setManual(plannedDay, !plannedDay.isManual)
 
             this.dispatchEvent(new Event("change"))
             this.draw()
@@ -80,10 +80,7 @@ class CalendarElement extends HTMLElement {
         }
 
         if (event.key === "r") {
-            plannedDay.isManual = false
-            if (this.#plan) {
-                plannedDay.plannedMinutes = this.#plan.dailyMinutes
-            }
+            this.#plan?.setManual(plannedDay, false)
 
             this.dispatchEvent(new Event("change"))
             this.draw()

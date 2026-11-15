@@ -288,6 +288,18 @@ export class MonthPlan {
     }
 
     /**
+     * Keeps the time of `plannedDay` when the default time changes, or sets it back to the default time.
+     * @param plannedDay - the day of the plan
+     * @param isManual - whether the time of the day is kept
+     */
+    setManual(plannedDay: PlannedDay, isManual: boolean): void {
+        plannedDay.isManual = isManual
+        if (!isManual) {
+            plannedDay.plannedMinutes = this.dailyMinutes
+        }
+    }
+
+    /**
      * Sets the default time planned on each day, and the time of the days that are not manual.
      * @param dailyMinutes - the default time planned on each day
      */
