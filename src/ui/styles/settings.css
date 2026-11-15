@@ -1,0 +1,92 @@
+.improved-attendance-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+    color: var(--sidebar-foreground);
+}
+[data-collapsible="icon"] .improved-attendance-settings {
+    display: none;
+}
+
+.improved-attendance-settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.improved-attendance-settings-days-container,
+.improved-attendance-settings-pace-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.improved-attendance-settings-pace-container,
+.improved-attendance-settings-container + .improved-attendance-settings-footer-container {
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--sidebar-border);
+}
+
+.improved-attendance-settings-title {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted-foreground);
+}
+.improved-attendance-settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.improved-attendance-settings-row input {
+    width: 4rem;
+    padding: 0.125rem 0.375rem;
+    border: 1px solid var(--input);
+    border-radius: 0.375rem;
+    background: transparent;
+    color: inherit;
+}
+.improved-attendance-settings-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.improved-attendance-settings-hint {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+}
+.improved-attendance-settings-info {
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.improved-attendance-settings-footer-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.improved-attendance-settings-credit {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+}
+.improved-attendance-settings-credit:hover {
+    text-decoration: underline;
+}
+.improved-attendance-settings-theme-switch {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    background: var(--card);
+    color: var(--foreground);
+    font-size: 1rem;
+    cursor: pointer;
+}

@@ -1,8 +1,9 @@
-import { getLabels } from "../../labels"
-import { formatMinutes } from "../../lib/time"
-import type { MonthPlan } from "../../models/month-plan/month-plan"
-import type { PlannedDay } from "../../models/month-plan/planned-day"
-import "./time-input"
+import { getLabels } from "../../../labels"
+import { formatMinutes } from "../../../lib/time"
+import type { MonthPlan } from "../../../models/month-plan/month-plan"
+import type { PlannedDay } from "../../../models/month-plan/planned-day"
+import "../time-input/time-input"
+import DAY_DIALOG_STYLE from "./day-dialog.css"
 
 export class DayDialogElement extends HTMLElement {
     #shadow: ShadowRoot
@@ -30,41 +31,13 @@ export class DayDialogElement extends HTMLElement {
     // noinspection JSUnusedGlobalSymbols
     connectedCallback(): void {
         this.#shadow.innerHTML = `
-            <style>
-                dialog {
-                    position: fixed;
-                    margin: 0;
-                    padding: 0;
-                    min-width: 14rem;
-                    border: 1px solid var(--border);
-                    border-radius: 0.5rem;
-                    background: var(--popover, var(--background));
-                    color: var(--popover-foreground, var(--foreground));
-                    font-size: 0.875rem;
-                    z-index: 300;
-                }
-                dialog::backdrop { background: transparent; }
-
-                .root { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; }
-                .header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-weight: 500; }
-                .header button {
-                    padding: 0;
-                    border: none;
-                    background: transparent;
-                    color: var(--muted-foreground);
-                    font-size: 1rem;
-                    line-height: 1;
-                    cursor: pointer;
-                }
-                .row { display: flex; align-items: center; gap: 0.5rem; }
-                .row improved-attendance-time-input { margin-left: auto; }
-                .hint { padding-top: 0.5rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--muted-foreground); }
-            </style>
-
             <dialog>
                 <div class="root"></div>
             </dialog>
         `
+        const styleElement = document.createElement("style")
+        styleElement.textContent = DAY_DIALOG_STYLE
+        this.#shadow.prepend(styleElement)
 
         this.#rootElement = this.#shadow.querySelector(".root")
         this.#dialogElement = this.#shadow.querySelector("dialog")

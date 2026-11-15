@@ -2,8 +2,8 @@ import type { Labels } from "../labels"
 import { formatMinutes } from "../lib/time"
 import type { Attendance } from "../models/attendance"
 import type { MonthPlan } from "../models/month-plan/month-plan"
-import "./components/calendar"
-import "./components/time-input"
+import "./components/calendar/calendar"
+import "./components/time-input/time-input"
 
 const SELECTORS = {
     sidebarContent: "[data-slot='sidebar-content']",
@@ -57,14 +57,14 @@ export class Settings {
     /** Adds the block to the bottom of the sidebar, and keeps it there. */
     mount(): void {
         const creditElement = document.createElement("a")
-        creditElement.className = "improved-attendance-credit"
+        creditElement.className = "improved-attendance-settings-credit"
         creditElement.href = "https://github.com/parad0xe"
         creditElement.target = "_blank"
         creditElement.rel = "noopener noreferrer"
         creditElement.textContent = "@nlallema"
 
         const footerContainerElement = document.createElement("div")
-        footerContainerElement.className = "improved-attendance-footer-container"
+        footerContainerElement.className = "improved-attendance-settings-footer-container"
         footerContainerElement.append(this.themeSwitchElement, creditElement)
         this.rootElement.append(footerContainerElement)
 
@@ -126,7 +126,7 @@ export class Settings {
         })
 
         const daysContainerElement = document.createElement("div")
-        daysContainerElement.className = "improved-attendance-days-container"
+        daysContainerElement.className = "improved-attendance-settings-days-container"
         daysContainerElement.append(daysHeaderElement, calendarElement, ...daysHintElements)
 
         const paceTitleElement = document.createElement("span")
@@ -150,7 +150,7 @@ export class Settings {
         dailyTimeColumnElement.append(timeInputElement, neededDailyTimeElement)
 
         const paceContainerElement = document.createElement("div")
-        paceContainerElement.className = "improved-attendance-pace-container"
+        paceContainerElement.className = "improved-attendance-settings-pace-container"
         paceContainerElement.append(paceTitleElement, dailyTimeColumnElement)
 
         settingsContainerElement.append(daysContainerElement, paceContainerElement)

@@ -48,7 +48,7 @@ export class ThemeSwitch {
 
         this.switchElement = document.createElement("button")
         this.switchElement.type = "button"
-        this.switchElement.className = "improved-attendance-theme-switch"
+        this.switchElement.className = "improved-attendance-settings-theme-switch"
         this.switchElement.title = labels.SETTINGS_THEME
         this.switchElement.setAttribute("aria-label", labels.SETTINGS_THEME)
 

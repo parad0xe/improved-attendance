@@ -1,3 +1,5 @@
+import TIME_INPUT_STYLE from "./time-input.css"
+
 export class TimeInputElement extends HTMLElement {
     #shadow: ShadowRoot
     #rootElement: HTMLElement | null
@@ -18,20 +20,11 @@ export class TimeInputElement extends HTMLElement {
     // noinspection JSUnusedGlobalSymbols
     connectedCallback(): void {
         this.#shadow.innerHTML = `
-            <style>
-                .root { display: flex; flex-shrink: 0; align-items: center; gap: 0.25rem; }
-                .root input {
-                    padding: 0.125rem 0.375rem;
-                    width: 3rem;
-                    border: 1px solid var(--input);
-                    border-radius: 0.375rem;
-                    background: transparent;
-                    color: inherit;
-                }
-            </style>
-
             <span class="root"></span>
         `
+        const styleElement = document.createElement("style")
+        styleElement.textContent = TIME_INPUT_STYLE
+        this.#shadow.prepend(styleElement)
 
         this.#rootElement = this.#shadow.querySelector(".root")
         this.draw()
