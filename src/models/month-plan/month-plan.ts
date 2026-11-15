@@ -51,6 +51,7 @@ export interface MonthTime {
     loggedTodayMinutes: number
 }
 
+/** The plan of a month. */
 export class MonthPlan {
     year: number
     monthIndex: number
@@ -75,7 +76,7 @@ export class MonthPlan {
      * @param monthIndex - 0 for January
      */
     static getStorageKey(year: number, monthIndex: number): string {
-        return `${PLAN_STORAGE_KEY}-${year}-${String(monthIndex + 1).padStart(2, '0')}`
+        return `${PLAN_STORAGE_KEY}-${year}-${String(monthIndex + 1).padStart(2, "0")}`
     }
 
     /**
@@ -221,11 +222,12 @@ export class MonthPlan {
     }
 
     /**
-     * Returns the time to have logged by the end of today.
+     * Returns the time to have logged by the end of the day of `now`.
      * @param monthGoalMinutes - the time to log in the month
+     * @param now - the current date
      */
-    getExpectedMinutes(monthGoalMinutes: number): number {
-        return this.getExpectedRange(monthGoalMinutes).end
+    getExpectedMinutes(monthGoalMinutes: number, now = new Date()): number {
+        return this.getExpectedRange(monthGoalMinutes, now).end
     }
 
     /**
@@ -285,6 +287,16 @@ export class MonthPlan {
             plannedDay.plannedMinutes = this.dailyMinutes
             plannedDay.isManual = false
         }
+    }
+
+    /**
+     * Sets the time planned on `plannedDay`, and keeps it when it differs from the default time.
+     * @param plannedDay - the day of the plan
+     * @param plannedMinutes - the time planned on the day
+     */
+    setPlannedMinutes(plannedDay: PlannedDay, plannedMinutes: number): void {
+        plannedDay.plannedMinutes = plannedMinutes
+        plannedDay.isManual = plannedMinutes !== this.dailyMinutes
     }
 
     /**

@@ -1,5 +1,6 @@
 import TIME_INPUT_STYLE from "./time-input.css"
 
+/** An input of a time, in hours and minutes. */
 export class TimeInputElement extends HTMLElement {
     #shadow: ShadowRoot
     #rootElement: HTMLElement | null
@@ -30,12 +31,18 @@ export class TimeInputElement extends HTMLElement {
         this.draw()
     }
 
+    /**
+     * Renders `minutes`, and calls `onChange` after each change.
+     * @param minutes - the time of the input
+     * @param onChange - called with the new time
+     */
     render(minutes: number, onChange: (minutes: number) => void): void {
         this.#minutes = minutes
         this.#onChange = onChange
         this.draw()
     }
 
+    /** Draws the input. */
     private draw(): void {
         if (this.#minutes === null || !this.#rootElement) {
             return

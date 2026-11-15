@@ -1,13 +1,13 @@
-import {getLabels} from "../../../labels"
-import type {DayMark} from "../../../models/attendance"
-import type {MonthPlan} from "../../../models/month-plan/month-plan"
-import {PlannedDay} from "../../../models/month-plan/planned-day"
-import {formatMinutes} from "../../../lib/time"
+import { getLabels } from "../../../labels"
+import { formatMinutes } from "../../../lib/time"
+import type { DayMark } from "../../../models/attendance"
+import type { MonthPlan } from "../../../models/month-plan/month-plan"
+import type { PlannedDay } from "../../../models/month-plan/planned-day"
 import type { DayDialogElement } from "../day-dialog/day-dialog"
 import "../day-dialog/day-dialog"
 import CALENDAR_STYLE from "./calendar.css"
 
-/** Shows the days of a plan, toggles its days off and dispatches `change`. */
+/** The calendar of the plan of a month. */
 class CalendarElement extends HTMLElement {
     #shadow: ShadowRoot
 
@@ -25,7 +25,7 @@ class CalendarElement extends HTMLElement {
 
     constructor() {
         super()
-        this.#shadow = this.attachShadow({mode: "open"})
+        this.#shadow = this.attachShadow({ mode: "open" })
 
         this.#plan = null
         this.#dayMarks = new Map()
@@ -67,25 +67,21 @@ class CalendarElement extends HTMLElement {
     }
 
     #onKeyup = (event: KeyboardEvent): void => {
-        if (!this.#hoveredDay) { return }
+        if (!this.#plan || !this.#hoveredDay || this.#dayDialog?.isOpen) { return }
 
-        const {plannedDay} = this.#hoveredDay
+        const { plannedDay } = this.#hoveredDay
+        if (plannedDay.isPast() || !plannedDay.hasPlannedTime()) { return }
 
         if (event.key === "m") {
-            this.#plan?.setManual(plannedDay, !plannedDay.isManual)
-
-            this.dispatchEvent(new Event("change"))
-            this.draw()
+            this.#plan.setManual(plannedDay, !plannedDay.isManual)
+        } else if (event.key === "r") {
+            this.#plan.setManual(plannedDay, false)
+        } else {
             return
         }
 
-        if (event.key === "r") {
-            this.#plan?.setManual(plannedDay, false)
-
-            this.dispatchEvent(new Event("change"))
-            this.draw()
-            return
-        }
+        this.dispatchEvent(new Event("change"))
+        this.draw()
     }
 
     /**
@@ -135,7 +131,7 @@ class CalendarElement extends HTMLElement {
             this.#legendElement.append(markElement)
         }
 
-        if ([...this.#plan.plannedDays.values()].some((plannedDay) => plannedDay.isManual)) {
+        if ([...this.#plan.plannedDays.values()].some((plannedDay) => plannedDay.hasPlannedTime() && plannedDay.isManual)) {
             const manualElement = document.createElement("span")
             manualElement.classList.add("legend-mark", "manual")
             manualElement.textContent = getLabels(this.lang).CALENDAR_MANUAL
@@ -155,22 +151,23 @@ class CalendarElement extends HTMLElement {
     }
 
     /**
-     * Creates the element of `day`.
+     * Creates the element of `plannedDay`.
      * @param plan - the plan of the month
-     * @param plannedDay - TODO: docstring
+     * @param plannedDay - the day of the plan
      */
     private createDayElement(plan: MonthPlan, plannedDay: PlannedDay): HTMLDivElement {
         const dayElement = document.createElement("div")
+        this.#dayDialog?.setDayElement(plannedDay, dayElement)
         dayElement.classList.add("day")
         dayElement.classList.toggle("off", !plannedDay.hasPlannedTime())
         dayElement.textContent = String(plannedDay.date.getDate())
 
         const isPast = plannedDay.isPast()
-        if (plannedDay.hasPlannedTime() && !isPast && (plannedDay.plannedMinutes !== plan.dailyMinutes || plannedDay.isManual)) {
-            const workTimeElement = document.createElement("span")
-            workTimeElement.classList.add("day-time")
-            workTimeElement.textContent = formatMinutes(plannedDay.plannedMinutes)
-            dayElement.append(workTimeElement)
+        if (plannedDay.hasPlannedTime() && plannedDay.isManual && !isPast) {
+            const dayTimeElement = document.createElement("span")
+            dayTimeElement.classList.add("day-time")
+            dayTimeElement.textContent = formatMinutes(plannedDay.plannedMinutes)
+            dayElement.append(dayTimeElement)
         }
 
         if (plannedDay.mark !== null) {
@@ -178,7 +175,7 @@ class CalendarElement extends HTMLElement {
             dayElement.title = this.getMarkLabel(plannedDay.mark)
         }
 
-        if (plannedDay.isManual) {
+        if (plannedDay.hasPlannedTime() && plannedDay.isManual) {
             dayElement.classList.add("manual")
         }
 
@@ -193,33 +190,30 @@ class CalendarElement extends HTMLElement {
                 this.dispatchEvent(new Event("change"))
                 this.draw()
             })
+            dayElement.addEventListener("contextmenu", (event) => {
+                event.preventDefault()
+                this.#dayDialog?.open({
+                    plan,
+                    dayElement,
+                    plannedDay,
+                    onChange: () => {
+                        this.dispatchEvent(new Event("change"))
+                        this.draw()
+                    },
+                })
+            })
         }
 
         dayElement.addEventListener("mouseenter", () => {
             this.#hoveredDay = {
                 element: dayElement,
-                plannedDay
+                plannedDay,
             }
         })
         dayElement.addEventListener("mouseleave", () => {
             if (this.#hoveredDay?.element === dayElement) {
                 this.#hoveredDay = null
             }
-        })
-
-        dayElement.addEventListener("contextmenu", (event) => {
-            if (isPast) return
-
-            event.preventDefault()
-            this.#dayDialog?.open(
-                plan,
-                dayElement,
-                plannedDay,
-                () => {
-                    this.dispatchEvent(new Event("change"))
-                    this.draw()
-                }
-            )
         })
 
         return dayElement

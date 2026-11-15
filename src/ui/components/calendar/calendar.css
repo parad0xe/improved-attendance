@@ -86,12 +86,12 @@
 }
 
 .day-time {
-    font-size: 8px;
     position: absolute;
-    color: var(--improved-attendance-day-time);
     bottom: -3px;
     right: 0;
     left: 0;
+    font-size: 0.5rem;
+    color: var(--improved-attendance-day-time);
 }
 
 .legend {

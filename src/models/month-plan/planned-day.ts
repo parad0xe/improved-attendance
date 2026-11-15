@@ -9,7 +9,7 @@ interface PlannedDayOptions {
     isOff: boolean
     /** The time planned on the day. */
     plannedMinutes: number
-    /** Whether the time planned on the day was set for this day only. */
+    /** Whether the time planned on the day is kept when the default time changes. */
     isManual: boolean
 }
 

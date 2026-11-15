@@ -65,7 +65,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_HINTS: [
             { key: "Clic gauche", action: "jour de repos" },
             { key: "Clic droit", action: "réglages du jour" },
-            { key: "M", action: "garder le temps (au survol)" },
+            { key: "M", action: "basculer le temps gardé (au survol)" },
             { key: "R", action: "temps par défaut (au survol)" },
         ],
         CALENDAR_DAY_DIALOG_CLOSE: "Fermer",
@@ -108,7 +108,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_HINTS: [
             { key: "Left click", action: "day off" },
             { key: "Right click", action: "day settings" },
-            { key: "M", action: "keep the time (over a day)" },
+            { key: "M", action: "toggle the kept time (over a day)" },
             { key: "R", action: "default time (over a day)" },
         ],
         CALENDAR_DAY_DIALOG_CLOSE: "Close",

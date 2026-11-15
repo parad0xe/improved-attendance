@@ -104,7 +104,7 @@ export class Settings {
 
         const daysHelpButtonElement = document.createElement("button")
         daysHelpButtonElement.type = "button"
-        daysHelpButtonElement.className = "improved-attendance-settings-info"
+        daysHelpButtonElement.className = "improved-attendance-settings-help"
         daysHelpButtonElement.textContent = "?"
         daysHelpButtonElement.title = this.labels.SETTINGS_DAYS_HELP
         daysHelpButtonElement.setAttribute("aria-label", this.labels.SETTINGS_DAYS_HELP)
@@ -205,7 +205,7 @@ export class Settings {
 
     /**
      * Renders the time to log on each planned day to reach the goal.
-     * @param neededMinutes - the time to log on each planned day, in minutes
+     * @param neededMinutes - the time to log on each planned day
      */
     renderNeededDailyTime(neededMinutes: number | null): void {
         if (!this.neededDailyTimeElement) { return }
