@@ -1,8 +1,9 @@
 import type { Labels } from "../labels"
 import { formatMinutes } from "../lib/time"
 import type { Attendance } from "../models/attendance"
-import type { MonthPlan } from "../models/month-plan"
+import type { MonthPlan } from "../models/month-plan/month-plan"
 import "./components/calendar"
+import "./components/time-input"
 
 const SELECTORS = {
     sidebarContent: "[data-slot='sidebar-content']",
@@ -93,6 +94,7 @@ export class Settings {
         const calendarElement = document.createElement("improved-attendance-calendar")
         calendarElement.lang = this.lang
         calendarElement.render(plan, attendance.getDayMarks())
+        calendarElement.addEventListener("change", onChange)
 
         const daysOffContainerElement = document.createElement("div")
         daysOffContainerElement.className = "improved-attendance-days-off-container"
@@ -106,29 +108,14 @@ export class Settings {
         dailyTimeRowElement.className = "improved-attendance-settings-row"
         dailyTimeRowElement.textContent = this.labels.SETTINGS_TIME_PER_REMAINING_DAY
 
-        const hoursInputElement = document.createElement("input")
-        hoursInputElement.type = "number"
-        hoursInputElement.min = "0"
-        hoursInputElement.max = "24"
-        hoursInputElement.step = "1"
-
-        // -1 and 60 let the arrows carry over to the hours.
-        const minutesInputElement = document.createElement("input")
-        minutesInputElement.type = "number"
-        minutesInputElement.min = "-1"
-        minutesInputElement.max = "60"
-        minutesInputElement.step = "1"
-
-        const renderDailyTime = () => {
-            hoursInputElement.value = String(Math.floor(plan.dailyMinutes / 60))
-            minutesInputElement.value = String(plan.dailyMinutes % 60)
-        }
-        renderDailyTime()
-
-        const dailyTimeInputsElement = document.createElement("span")
-        dailyTimeInputsElement.className = "improved-attendance-daily-time-inputs"
-        dailyTimeInputsElement.append(hoursInputElement, "h", minutesInputElement)
-        dailyTimeRowElement.append(dailyTimeInputsElement)
+        const timeInputElement = document.createElement("improved-attendance-time-input")
+        timeInputElement.render(plan.dailyMinutes, (hours, minutes) => {
+            const dailyMinutes = Math.min(Math.max(0, Math.round(hours * 60 + minutes)), 24 * 60)
+            plan.setGenericDailyWorkTime(dailyMinutes)
+            onChange()
+            calendarElement.draw()
+        })
+        dailyTimeRowElement.append(timeInputElement)
 
         const neededDailyTimeElement = document.createElement("span")
         neededDailyTimeElement.className = "improved-attendance-needed-daily-time"
@@ -141,21 +128,6 @@ export class Settings {
         const paceContainerElement = document.createElement("div")
         paceContainerElement.className = "improved-attendance-pace-container"
         paceContainerElement.append(paceTitleElement, dailyTimeFieldElement)
-
-        calendarElement.addEventListener("change", onChange)
-        const onDailyTimeChange = () => {
-            const hours = hoursInputElement.valueAsNumber
-            const minutes = minutesInputElement.valueAsNumber
-            if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
-                renderDailyTime()
-                return
-            }
-            plan.dailyMinutes = Math.min(Math.max(0, Math.round(hours * 60 + minutes)), 24 * 60)
-            renderDailyTime()
-            onChange()
-        }
-        hoursInputElement.addEventListener("change", onDailyTimeChange)
-        minutesInputElement.addEventListener("change", onDailyTimeChange)
 
         settingsContainerElement.append(daysOffContainerElement, paceContainerElement)
 

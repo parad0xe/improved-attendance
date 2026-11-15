@@ -16,6 +16,7 @@
     --improved-attendance-past-day-border: #f4f4f5;
     --improved-attendance-past-day-text: #a1a1aa;
     --improved-attendance-past-day-off-background: #f4f4f5;
+    --improved-attendance-manual-day-background: #754716;
 }
 
 html.dark {
@@ -74,6 +75,7 @@ html.dark {
     --improved-attendance-past-day-border: oklch(100% 0 0 / 5%);
     --improved-attendance-past-day-text: oklch(100% 0 0 / 30%);
     --improved-attendance-past-day-off-background: oklch(100% 0 0 / 6%);
+    --improved-attendance-manual-day-background: #754716;
 }
 
 @layer utilities {

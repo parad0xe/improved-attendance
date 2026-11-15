@@ -1,6 +1,6 @@
 import { getLabels, loadLang, type Labels } from "./labels"
 import { Attendance } from "./models/attendance"
-import { MonthPlan, type MonthTime } from "./models/month-plan"
+import { MonthPlan, type MonthTime } from "./models/month-plan/month-plan"
 import LAYOUT_STYLE from "./styles/layout.css"
 import THEME_STYLE from "./styles/theme.css"
 import { Page } from "./ui/page"

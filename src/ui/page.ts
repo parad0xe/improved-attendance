@@ -1,7 +1,7 @@
 import { EXTENSION_NAME } from "../constants"
 import type { Labels } from "../labels"
 import { formatMinutes, parseMinutes } from "../lib/time"
-import type { MonthPlan, MonthTime } from "../models/month-plan"
+import type { MonthPlan, MonthTime } from "../models/month-plan/month-plan"
 
 const SELECTORS = {
     main: "[data-slot='sidebar-inset'] main",
