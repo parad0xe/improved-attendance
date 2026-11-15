@@ -190,7 +190,7 @@ export class Page {
             gapContainerElement.append(gapTodayContainerElement)
 
             const gapTimeElement = document.createElement("strong")
-            gapTimeElement.classList.add(className)
+            gapTimeElement.classList.add("improved-attendance-gap-value", className)
             gapTimeElement.title = this.labels.GAP_EXPECTED(formatMinutes(expectedMinutes))
             gapTimeElement.textContent = `${isBonus ? "+" : "-"}${formatMinutes(Math.abs(gapMinutes))}`
             gapTodayContainerElement.append(gapTimeElement)
@@ -198,8 +198,7 @@ export class Page {
             if (plan.dailyMinutes > 0) {
                 const formatDays = isBonus ? this.labels.GAP_BONUS_DAYS : this.labels.GAP_MISSING_DAYS
                 const gapDaysElement = document.createElement("span")
-                gapDaysElement.className = "improved-attendance-gap-days"
-                gapDaysElement.classList.add(className)
+                gapDaysElement.classList.add("improved-attendance-gap-label", className)
                 gapDaysElement.textContent = formatDays(Math.abs(gapMinutes) / plan.dailyMinutes)
                 gapTodayContainerElement.append(gapDaysElement)
             }
@@ -211,12 +210,12 @@ export class Page {
             gapContainerElement.append(gapRemainingTodayContainerElement)
 
             const gapRemainingTodayElement = document.createElement("strong")
-            gapRemainingTodayElement.className = "improved-attendance-gap-remaining-today improved-attendance-in-progress"
+            gapRemainingTodayElement.classList.add("improved-attendance-gap-value", "improved-attendance-in-progress")
             gapRemainingTodayElement.textContent = formatMinutes(remainingTodayMinutes)
             gapRemainingTodayContainerElement.append(gapRemainingTodayElement)
 
             const gapRemainingTodayLabelElement = document.createElement("span")
-            gapRemainingTodayLabelElement.className = "improved-attendance-gap-remaining-today-label improved-attendance-in-progress"
+            gapRemainingTodayLabelElement.classList.add("improved-attendance-gap-label", "improved-attendance-in-progress")
             gapRemainingTodayLabelElement.textContent = this.labels.GAP_REMAINING_TODAY
             gapRemainingTodayContainerElement.append(gapRemainingTodayLabelElement)
         }
@@ -229,19 +228,23 @@ export class Page {
             gapContainerElement.append(gapMonthEndContainerElement)
 
             const gapMonthEndLabelElement = document.createElement("span")
-            gapMonthEndLabelElement.className = "improved-attendance-gap-month-end-label"
+            gapMonthEndLabelElement.className = "improved-attendance-gap-label"
             gapMonthEndLabelElement.textContent = this.labels.GAP_MONTH_END
 
             const gapMonthEndTimeElement = document.createElement("strong")
-            gapMonthEndTimeElement.className = isMonthEndBonus ? "improved-attendance-bonus" : "improved-attendance-missing"
+            gapMonthEndTimeElement.classList.add("improved-attendance-gap-value", isMonthEndBonus ? "improved-attendance-bonus" : "improved-attendance-missing")
             gapMonthEndTimeElement.textContent = `${isMonthEndBonus ? "+" : ""}${formatMinutes(monthEndMinutes)}`
             gapMonthEndContainerElement.append(gapMonthEndLabelElement, gapMonthEndTimeElement)
 
             if (plan.capsules > 0) {
+                const gapCapsuleContainerElement = document.createElement("span")
+                gapCapsuleContainerElement.className = "improved-attendance-gap-capsule-container"
+                gapContainerElement.append(gapCapsuleContainerElement)
+
                 const gapCapsuleElement = document.createElement("span")
-                gapCapsuleElement.className = "improved-attendance-gap-capsule"
+                gapCapsuleElement.classList.add("improved-attendance-gap-label", "improved-attendance-capsule")
                 gapCapsuleElement.textContent = this.labels.GAP_CAPSULES_LEFT(plan.capsules)
-                gapContainerElement.append(gapCapsuleElement)
+                gapCapsuleContainerElement.append(gapCapsuleElement)
             }
         }
     }

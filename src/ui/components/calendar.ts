@@ -64,16 +64,16 @@ class CalendarElement extends HTMLElement {
                     cursor: pointer;
                     transition: background-color 150ms, border-color 150ms;
                 }
-                .day:not(.past):not(.day-off):hover {
+                .day:not(.past):not(.off):hover {
                     background: var(--improved-attendance-day-hover);
                 }
-                .day.day-off {
+                .day.off {
                     background: var(--improved-attendance-day-off-background);
                     border-color: var(--improved-attendance-day-off-border);
                     color: var(--improved-attendance-day-off-text);
                     font-weight: 500;
                 }
-                .day.day-off:not(.past):hover {
+                .day.off:not(.past):hover {
                     border-color: var(--improved-attendance-day-off-text);
                 }
                 .day.past {
@@ -81,7 +81,7 @@ class CalendarElement extends HTMLElement {
                     color: var(--improved-attendance-past-day-text);
                     cursor: default;
                 }
-                .day.past.day-off {
+                .day.past.off {
                     background: var(--improved-attendance-past-day-off-background);
                     font-weight: normal;
                 }
@@ -140,8 +140,10 @@ class CalendarElement extends HTMLElement {
                 .legend-mark.manual::before { width: 4px; height: 4px; border-radius: 50%; background: var(--improved-attendance-manual-day-dot); }
             </style>
 
-            <div class="grid"></div>
-            <div class="legend"></div>
+            <div class="root">
+                <div class="grid"></div>
+                <div class="legend"></div>
+            </div>
         `
 
         this.#gridElement = this.#shadow.querySelector(".grid")
@@ -260,7 +262,7 @@ class CalendarElement extends HTMLElement {
     private createDayElement(plan: MonthPlan, plannedDay: PlannedDay): HTMLDivElement {
         const dayElement = document.createElement("div")
         dayElement.classList.add("day")
-        dayElement.classList.toggle("day-off", plannedDay.isOff)
+        dayElement.classList.toggle("off", plannedDay.isOff)
         dayElement.textContent = String(plannedDay.date.getDate())
 
         const isPast = plannedDay.isPast()
