@@ -12,26 +12,37 @@ Improves the [42 Lyon attendance page](https://attendance.42lyon.fr/me) with too
 
 ### Plan your month
 
-- Choose your days off on a calendar, with weekends, public holidays and school closures selected by default
-- Set the time you plan for each remaining day, in hours and minutes, 7:00 by default
-- See the time needed on each planned day to reach the goal of the month
-- In the current month, plan the capsules you will use, each one lowering the goal of the month by 7 hours
+- Choose your days off on a calendar, with weekends, public holidays and school closures off by default
+- Set a default time per day, and a time of its own for any day
+- Plan the capsules you will use this month
+
+#### Calendar interactions
+
+| On a day of the calendar | Effect |
+|---|---|
+| Left-Click | switches the day between day off and planned day |
+| Right-click | opens the settings of the day |
+| M | keeps its planned time when the default time per day changes |
+| R | sets its planned time back to the default time per day |
+
+---
 
 ### Follow your progress
 
-- See whether you are ahead of or behind the time expected by today, in hours and in days
-- On a planned day, see the time remaining today
-- See whether you will end the month ahead or behind if you follow your plan
-- See the capsules you still plan to use
+- See how far ahead or behind you are today
+- See the time left today
+- See how you will end the month if you follow your plan
+- See the time needed on each planned day to reach the goal
 - See the time expected by today on the progress bar
-- Everything updates by itself when your logged time changes
+
+---
 
 ### Comfort
 
-- A switch between the light and dark themes of the page
-- The texts follow the language of the site, in French or English
+- Light and dark themes
+- Texts in French or English, following the language of the site
 
-Your plan is saved for each month in your browser, and nothing is sent anywhere. A capsule used on the site is removed from the planned ones
+Your plan is saved in your browser, and nothing is sent anywhere
 
 ## Installation
 
@@ -68,6 +79,8 @@ To load the extension without a store, after `npm run build`:
 
 - Chrome: open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and choose the folder of the repository
 - Firefox: open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…** and choose `manifest.json`
+
+---
 
 ### Testing on Firefox for Android
 
