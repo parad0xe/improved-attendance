@@ -45,10 +45,10 @@ export interface Labels {
 const LABELS: Record<string, Labels> = {
     fr: {
         SETTINGS_THEME: "Thème",
-        SETTINGS_DAYS: "Jours",
+        SETTINGS_DAYS: "Jours de repos",
         SETTINGS_DAYS_HELP: "Aide",
         SETTINGS_PACE: "Rythme",
-        SETTINGS_DAILY_TIME: "Temps par jour par défaut",
+        SETTINGS_DAILY_TIME: "Temps par jour",
         SETTINGS_PER_DAY: (time) => `${time} recommandées`,
         SETTINGS_APPLY: "Appliquer",
         SETTINGS_APPLY_NEEDED: "Utiliser comme temps par jour",
@@ -90,10 +90,10 @@ const LABELS: Record<string, Labels> = {
     },
     en: {
         SETTINGS_THEME: "Theme",
-        SETTINGS_DAYS: "Days",
+        SETTINGS_DAYS: "Days off",
         SETTINGS_DAYS_HELP: "Help",
         SETTINGS_PACE: "Pace",
-        SETTINGS_DAILY_TIME: "Default time per day",
+        SETTINGS_DAILY_TIME: "Time per day",
         SETTINGS_PER_DAY: (time) => `${time} recommended`,
         SETTINGS_APPLY: "Apply",
         SETTINGS_APPLY_NEEDED: "Use as time per day",
