@@ -210,17 +210,20 @@ export class MonthPlan {
      * @param now - the current date
      */
     getNeededDailyMinutes(time: MonthTime, now = new Date()): number | null {
-        const today = this.getPlannedDay(now.getDate())
+        const goalMinutes = this.getGoalMinutes(time.monthGoalMinutes, now)
+        const loggedMinutes = time.loggedMonthMinutes + time.runningSessionMinutes
+        const remainingDays = this.countRemainingDays(now)
+        const hasPlannedTime = this.hasPlannedTime(now)
 
-        const hasPlannedTime = this.hasPlannedTime(now) && today && today.plannedMinutes > time.loggedTodayMinutes
-        const remainingDays = this.countRemainingDays(now) + (hasPlannedTime ? 1 : 0)
-        if (remainingDays === 0) { return null }
+        if (remainingDays === 0 && !hasPlannedTime) { return null }
+        if (loggedMinutes >= goalMinutes) { return 0 }
 
-        const completedTodayMinutes = time.loggedTodayMinutes - time.runningSessionMinutes
-        const loggedMinutes = hasPlannedTime
-            ? time.loggedMonthMinutes - completedTodayMinutes
-            : time.loggedMonthMinutes + time.runningSessionMinutes
-        return Math.ceil(Math.max(0, this.getGoalMinutes(time.monthGoalMinutes, now) - loggedMinutes) / remainingDays)
+        const afterTodayMinutes = remainingDays > 0 ? (goalMinutes - loggedMinutes) / remainingDays : Infinity
+        if (!hasPlannedTime) { return Math.ceil(afterTodayMinutes) }
+
+        const loggedBeforeTodayMinutes = loggedMinutes - time.loggedTodayMinutes
+        const withTodayMinutes = (goalMinutes - loggedBeforeTodayMinutes) / (remainingDays + 1)
+        return Math.ceil(Math.min(withTodayMinutes, afterTodayMinutes))
     }
 
     /**
