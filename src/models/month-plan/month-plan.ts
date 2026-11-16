@@ -205,12 +205,14 @@ export class MonthPlan {
     }
 
     /**
-     * Returns the time to log on each day with planned time, from today, to reach the goal.
+     * Returns the time to log on each day with planned time to reach the goal.
      * @param time - the times of the month
      * @param now - the current date
      */
     getNeededDailyMinutes(time: MonthTime, now = new Date()): number | null {
-        const hasPlannedTime = this.hasPlannedTime(now)
+        const today = this.getPlannedDay(now.getDate())
+
+        const hasPlannedTime = this.hasPlannedTime(now) && today && today.plannedMinutes > time.loggedTodayMinutes
         const remainingDays = this.countRemainingDays(now) + (hasPlannedTime ? 1 : 0)
         if (remainingDays === 0) { return null }
 
