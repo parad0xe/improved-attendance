@@ -29,7 +29,7 @@ export interface Labels {
     CALENDAR_DAY_DIALOG_OFF: string
     CALENDAR_DAY_DIALOG_PLANNED_TIME: string
     CALENDAR_DAY_DIALOG_MANUAL: string
-    CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time: string) => string
+    CALENDAR_DAY_DIALOG_DAILY_TIME: (time: string) => string
 
     ERROR_WORKDAYS_MISSING: string
     ERROR_DATA_UNAVAILABLE: (status: number) => string
@@ -76,7 +76,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_DAY_DIALOG_OFF: "Jour de repos",
         CALENDAR_DAY_DIALOG_PLANNED_TIME: "Temps prévu",
         CALENDAR_DAY_DIALOG_MANUAL: "Temps personnalisé",
-        CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time) => `Temps par jour: ${time}`,
+        CALENDAR_DAY_DIALOG_DAILY_TIME: (time) => `Temps par jour: ${time}`,
 
         ERROR_WORKDAYS_MISSING: "les jours ouvrés du mois sont introuvables, la page a peut-être changé",
         ERROR_DATA_UNAVAILABLE: (status) => `impossible de charger les données d'attendance (HTTP ${status})`,
@@ -121,7 +121,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_DAY_DIALOG_OFF: "Day off",
         CALENDAR_DAY_DIALOG_PLANNED_TIME: "Planned time",
         CALENDAR_DAY_DIALOG_MANUAL: "Custom time",
-        CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time) => `Time per day: ${time}`,
+        CALENDAR_DAY_DIALOG_DAILY_TIME: (time) => `Time per day: ${time}`,
 
         ERROR_WORKDAYS_MISSING: "the working days of the month are missing, the page may have changed",
         ERROR_DATA_UNAVAILABLE: (status) => `cannot load the attendance data (HTTP ${status})`,
