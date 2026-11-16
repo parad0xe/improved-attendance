@@ -209,7 +209,7 @@ export class MonthPlan {
      * @param time - the times of the month
      * @param now - the current date
      */
-    getNeededDailyMinutes(time: MonthTime, now = new Date()): number | null {
+    getRecommendedDailyMinutes(time: MonthTime, now = new Date()): number | null {
         const goalMinutes = this.getGoalMinutes(time.monthGoalMinutes, now)
         const loggedMinutes = time.loggedMonthMinutes + time.runningSessionMinutes
         const remainingDays = this.countRemainingDays(now)

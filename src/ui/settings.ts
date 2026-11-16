@@ -37,13 +37,13 @@ export class Settings {
     /** The input of the planned capsules. */
     capsulesInputElement: HTMLInputElement | null
     /** The row of the time to log on each planned day to reach the goal. */
-    neededDailyTimeRowElement: HTMLElement | null
+    recommendedDailyTimeRowElement: HTMLElement | null
     /** The text of the time to log on each planned day to reach the goal. */
-    neededDailyTimeElement: HTMLElement | null
+    recommendedDailyTimeElement: HTMLElement | null
     /** The button of the time to log on each planned day to reach the goal. */
-    neededDailyTimeApplyElement: HTMLElement | null
+    recommendedDailyTimeApplyElement: HTMLElement | null
     /** The time to log on each planned day to reach the goal. */
-    neededDailyMinutes: number | null
+    recommendedDailyMinutes: number | null
     /** The settings of the plan of the month. */
     settingsContainerElement: HTMLElement | null
 
@@ -57,11 +57,11 @@ export class Settings {
         this.rootElement.className = "improved-attendance-settings"
 
         this.capsulesInputElement = null
-        this.neededDailyTimeRowElement = null
-        this.neededDailyTimeElement = null
-        this.neededDailyMinutes = null
+        this.recommendedDailyTimeRowElement = null
+        this.recommendedDailyTimeElement = null
+        this.recommendedDailyMinutes = null
         this.settingsContainerElement = null
-        this.neededDailyTimeApplyElement = null
+        this.recommendedDailyTimeApplyElement = null
     }
 
     /** Adds the block to the bottom of the sidebar, and keeps it there. */
@@ -169,28 +169,28 @@ export class Settings {
         timeInputElement.render(plan.dailyMinutes, setDailyMinutes)
         dailyTimeColumnElement.append(timeInputElement)
 
-        const neededDailyTimeRowElement = document.createElement("div")
-        neededDailyTimeRowElement.className = "improved-attendance-settings-row"
-        this.neededDailyTimeRowElement = neededDailyTimeRowElement
-        dailyTimeColumnElement.append(neededDailyTimeRowElement)
+        const recommendedDailyTimeRowElement = document.createElement("div")
+        recommendedDailyTimeRowElement.className = "improved-attendance-settings-row"
+        this.recommendedDailyTimeRowElement = recommendedDailyTimeRowElement
+        dailyTimeColumnElement.append(recommendedDailyTimeRowElement)
 
-        const neededDailyTimeElement = document.createElement("span")
-        neededDailyTimeElement.className = "improved-attendance-settings-hint"
-        this.neededDailyTimeElement = neededDailyTimeElement
-        neededDailyTimeRowElement.append(neededDailyTimeElement)
+        const recommendedDailyTimeElement = document.createElement("span")
+        recommendedDailyTimeElement.className = "improved-attendance-settings-hint"
+        this.recommendedDailyTimeElement = recommendedDailyTimeElement
+        recommendedDailyTimeRowElement.append(recommendedDailyTimeElement)
 
-        const neededDailyTimeApplyElement = document.createElement("button")
-        neededDailyTimeApplyElement.type = "button"
-        neededDailyTimeApplyElement.className = "improved-attendance-settings-button"
-        neededDailyTimeApplyElement.textContent = this.labels.SETTINGS_APPLY
-        neededDailyTimeApplyElement.title = this.labels.SETTINGS_APPLY_NEEDED
-        this.neededDailyTimeApplyElement = neededDailyTimeApplyElement
-        neededDailyTimeApplyElement.addEventListener("click", () => {
-            if (this.neededDailyMinutes === null) { return }
-            timeInputElement.render(this.neededDailyMinutes, setDailyMinutes)
-            setDailyMinutes(this.neededDailyMinutes)
+        const recommendedDailyTimeApplyElement = document.createElement("button")
+        recommendedDailyTimeApplyElement.type = "button"
+        recommendedDailyTimeApplyElement.className = "improved-attendance-settings-button"
+        recommendedDailyTimeApplyElement.textContent = this.labels.SETTINGS_APPLY
+        recommendedDailyTimeApplyElement.title = this.labels.SETTINGS_APPLY_RECOMMENDED
+        this.recommendedDailyTimeApplyElement = recommendedDailyTimeApplyElement
+        recommendedDailyTimeApplyElement.addEventListener("click", () => {
+            if (this.recommendedDailyMinutes === null) { return }
+            timeInputElement.render(this.recommendedDailyMinutes, setDailyMinutes)
+            setDailyMinutes(this.recommendedDailyMinutes)
         })
-        neededDailyTimeRowElement.append(neededDailyTimeApplyElement)
+        recommendedDailyTimeRowElement.append(recommendedDailyTimeApplyElement)
 
         if (plan.isCurrentMonth()) {
             const capsulesRowElement = document.createElement("label")
@@ -238,15 +238,15 @@ export class Settings {
      * @param plan - the plan of the month
      * @param time - the times of the month
      */
-    renderNeededDailyTime(plan: MonthPlan, time: MonthTime): void {
-        const neededMinutes = plan.getNeededDailyMinutes(time)
-        this.neededDailyMinutes = neededMinutes === null ? null : Math.min(neededMinutes, MAX_DAILY_MINUTES)
-        if (!this.neededDailyTimeRowElement || !this.neededDailyTimeElement || !this.neededDailyTimeApplyElement) { return }
-        this.neededDailyTimeRowElement.hidden = neededMinutes === null
-        this.neededDailyTimeElement.textContent = neededMinutes === null ? "" : this.labels.SETTINGS_PER_DAY(formatMinutes(neededMinutes))
+    setRecommendedDailyTime(plan: MonthPlan, time: MonthTime): void {
+        const recommendedMinutes = plan.getRecommendedDailyMinutes(time)
+        this.recommendedDailyMinutes = recommendedMinutes === null ? null : Math.min(recommendedMinutes, MAX_DAILY_MINUTES)
+        if (!this.recommendedDailyTimeRowElement || !this.recommendedDailyTimeElement || !this.recommendedDailyTimeApplyElement) { return }
+        this.recommendedDailyTimeRowElement.hidden = recommendedMinutes === null
+        this.recommendedDailyTimeElement.textContent = recommendedMinutes === null ? "" : this.labels.SETTINGS_RECOMMENDED(formatMinutes(recommendedMinutes))
 
-        this.neededDailyTimeApplyElement.hidden = [...plan.plannedDays.values()].every((plannedDay) => {
-            return plannedDay.isPast() || plannedDay.plannedMinutes === this.neededDailyMinutes || plannedDay.isOff || plannedDay.isManual
-        }) || neededMinutes === 0
+        this.recommendedDailyTimeApplyElement.hidden = [...plan.plannedDays.values()].every((plannedDay) => {
+            return plannedDay.isPast() || plannedDay.plannedMinutes === this.recommendedDailyMinutes || plannedDay.isOff || plannedDay.isManual
+        }) || recommendedMinutes === 0
     }
 }

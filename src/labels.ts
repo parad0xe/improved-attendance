@@ -6,9 +6,9 @@ export interface Labels {
     SETTINGS_DAYS_HELP: string
     SETTINGS_PACE: string
     SETTINGS_DAILY_TIME: string
-    SETTINGS_PER_DAY: (time: string) => string
+    SETTINGS_RECOMMENDED: (time: string) => string
     SETTINGS_APPLY: string
-    SETTINGS_APPLY_NEEDED: string
+    SETTINGS_APPLY_RECOMMENDED: string
     SETTINGS_CAPSULES_TO_USE: string
 
     GAP_EXPECTED: (time: string) => string
@@ -49,9 +49,9 @@ const LABELS: Record<string, Labels> = {
         SETTINGS_DAYS_HELP: "Aide",
         SETTINGS_PACE: "Rythme",
         SETTINGS_DAILY_TIME: "Temps par jour",
-        SETTINGS_PER_DAY: (time) => `${time} recommandées`,
+        SETTINGS_RECOMMENDED: (time) => `${time} recommandées`,
         SETTINGS_APPLY: "Appliquer",
-        SETTINGS_APPLY_NEEDED: "Utiliser comme temps par jour",
+        SETTINGS_APPLY_RECOMMENDED: "Utiliser comme temps par jour",
         SETTINGS_CAPSULES_TO_USE: "Capsules à poser",
 
         GAP_EXPECTED: (time) => `Prévu ${time}`,
@@ -94,9 +94,9 @@ const LABELS: Record<string, Labels> = {
         SETTINGS_DAYS_HELP: "Help",
         SETTINGS_PACE: "Pace",
         SETTINGS_DAILY_TIME: "Time per day",
-        SETTINGS_PER_DAY: (time) => `${time} recommended`,
+        SETTINGS_RECOMMENDED: (time) => `${time} recommended`,
         SETTINGS_APPLY: "Apply",
-        SETTINGS_APPLY_NEEDED: "Use as time per day",
+        SETTINGS_APPLY_RECOMMENDED: "Use as time per day",
         SETTINGS_CAPSULES_TO_USE: "Capsules to use",
 
         GAP_EXPECTED: (time) => `Expected ${time}`,
