@@ -4,7 +4,7 @@ const THEME_STORAGE_KEY = "improved-attendance-theme"
 
 type Theme = "light" | "dark"
 
-/** Returns the theme chosen, or else the theme of the system. */
+/** Returns the theme to apply. */
 function loadTheme(): Theme {
     try {
         const storedTheme = localStorage.getItem(THEME_STORAGE_KEY)
@@ -12,7 +12,7 @@ function loadTheme(): Theme {
             return storedTheme === "dark" ? "dark" : "light"
         }
     } catch {
-        // The storage can be unavailable, for example in a private window.
+        // The storage can be unavailable.
     }
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
 }
@@ -25,14 +25,13 @@ function saveTheme(theme: Theme): void {
     try {
         localStorage.setItem(THEME_STORAGE_KEY, theme)
     } catch {
-        // Without storage, the choice lasts until the page is reloaded.
+        // The storage can be unavailable.
     }
 }
 
-/** Renders the switch between the light and dark themes, and applies the chosen one to the page. */
+/** Renders the theme switch, and applies the chosen theme to the page. */
 export class ThemeSwitch {
-    /** The row of the switch, with its label. */
-    element: HTMLElement
+    rootElement: HTMLElement
     theme: Theme
     private switchElement: HTMLButtonElement
 
@@ -43,13 +42,13 @@ export class ThemeSwitch {
     constructor(labels: Labels) {
         this.theme = loadTheme()
 
-        this.element = document.createElement("div")
-        this.element.className = "improved-attendance-settings-row"
-        this.element.textContent = labels.SETTINGS_THEME
+        this.rootElement = document.createElement("div")
+        this.rootElement.className = "improved-attendance-settings-row"
+        this.rootElement.textContent = labels.SETTINGS_THEME
 
         this.switchElement = document.createElement("button")
         this.switchElement.type = "button"
-        this.switchElement.className = "improved-attendance-theme-switch"
+        this.switchElement.className = "improved-attendance-settings-theme-switch"
         this.switchElement.title = labels.SETTINGS_THEME
         this.switchElement.setAttribute("aria-label", labels.SETTINGS_THEME)
 
@@ -58,7 +57,7 @@ export class ThemeSwitch {
             saveTheme(this.theme)
             this.render()
         })
-        this.element.append(this.switchElement)
+        this.rootElement.append(this.switchElement)
     }
 
     /** Applies the chosen theme to the page, and keeps it applied. */
@@ -70,9 +69,8 @@ export class ThemeSwitch {
     /** Renders the chosen theme on the page and on the switch. */
     private render(): void {
         const isDark = this.theme === "dark"
-        const rootElement = document.documentElement
-        if (rootElement.classList.contains("dark") !== isDark) {
-            rootElement.classList.toggle("dark", isDark)
+        if (document.documentElement.classList.contains("dark") !== isDark) {
+            document.documentElement.classList.toggle("dark", isDark)
         }
         this.switchElement.textContent = isDark ? "☀" : "☾"
         this.switchElement.setAttribute("aria-pressed", String(isDark))

@@ -1,53 +1,60 @@
 # Improved 42 Attendance
 
-Shows on the [42 Lyon attendance page](https://attendance.42lyon.fr/me) your bonus or missing time compared with the time expected by today, based on your own days off, planned hours and capsules
+[![Latest release](https://img.shields.io/github/v/release/parad0xe/improved-attendance)](https://github.com/parad0xe/improved-attendance/releases/latest)
+[![License](https://img.shields.io/github/license/parad0xe/improved-attendance)](LICENSE)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/lbifhclehfgdpjdkpfpjilimhnnedain)](https://chromewebstore.google.com/detail/lbifhclehfgdpjdkpfpjilimhnnedain)
+[![Firefox Add-ons](https://img.shields.io/amo/v/improved-42-attendance)](https://addons.mozilla.org/fr/firefox/addon/improved-42-attendance/)
 
-![The attendance page with the gap, the calendar of the days off and the settings, in the dark theme](resources/dark-attendance.png)
+Improves the [42 Lyon attendance page](https://attendance.42lyon.fr/me) with tools to plan your month and follow your progress
+
+![The attendance page with the gap, the calendar of the days off and the settings, in the dark theme](resources/screenshot.png)
 
 ## Features
 
-### Gap
+### Plan your month
 
-- Shows your bonus or missing time, in hours and in days, compared with the time to have logged by today to reach the goal of the month with your plan
-- While your planned time of today is in progress, shows the time remaining today
-- Shows the time expected by today on the progress bar
-- Updates by itself when your logged time changes, without reloading the page
+- Choose your days off on a calendar, with weekends, public holidays and school closures off by default
+- Set a default time per day, and a time of its own for any day
+- Plan the capsules you will use this month
 
-### Settings
+#### Calendar interactions
 
-A block in the sidebar holds:
+| On a day of the calendar | Effect |
+|---|---|
+| Left click | switches the day between day off and planned day |
+| Right click | opens the settings of the day |
+| M | toggles a custom planned time |
+| R | sets its planned time back to the default time per day |
 
-- a calendar to choose your days off, with weekends, public holidays and campus closures selected by default
-- the hours you plan for each remaining day, 7 by default
-- in the current month, the capsules you plan to use, each one lowering the goal of the month by 7 hours
-- a switch between the light and dark themes
+---
 
-Your days off, planned hours and capsules are saved for each month, and your theme is remembered. A capsule used on the site is removed from the planned ones
+### Follow your progress
 
-### Language
+- See how far ahead or behind you are today
+- See the time left today
+- See how you will end the month if you follow your plan
+- See the time needed on each planned day to reach the goal
+- See the time expected by today on the progress bar
 
-The texts follow the language of the site, in French or English
+---
+
+### Comfort
+
+- Light and dark themes
+- Texts in French or English, following the language of the site
+
+Your plan is saved in your browser, and nothing is sent anywhere
 
 ## Installation
 
 Install the extension from the store of your browser:
 
-- Firefox 128 or later: Firefox Add-ons, link to come
-- Chrome 111 or later: Chrome Web Store, link to come
-
-Until it is published, load it from the source, see [Development](#development)
+- Firefox 128 or later: [Firefox Add-ons](https://addons.mozilla.org/fr/firefox/addon/improved-42-attendance)
+- Chrome 111 or later: [Chrome Web Store](https://chromewebstore.google.com/detail/lbifhclehfgdpjdkpfpjilimhnnedain)
 
 ## Updates
 
 Your browser updates the extension by itself
-
-## Moving from the userscript
-
-The extension replaces the Tampermonkey userscript
-
-1. Remove the userscript from Tampermonkey, otherwise the gap and the settings show twice
-2. Install the extension
-3. Choose your days off, planned hours, capsules and theme again, as the settings of the userscript are not kept
 
 ## Development
 
@@ -71,6 +78,8 @@ To load the extension without a store, after `npm run build`:
 
 - Chrome: open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and choose the folder of the repository
 - Firefox: open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…** and choose `manifest.json`
+
+---
 
 ### Testing on Firefox for Android
 

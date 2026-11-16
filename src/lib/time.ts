@@ -3,18 +3,18 @@
  * @param text - a duration such as "26:33"
  */
 export function parseMinutes(text: string): number {
-    let [hours, minutes] = text.split(":").map((x) => parseInt(x))
+    const [hours, minutes] = text.split(":").map((x) => parseInt(x))
     return hours * 60 + minutes
 }
 
 /**
- * Formats `minutes` as HH:MM, with a minus sign when negative.
- * @param minutes - a duration in minutes
+ * Formats `minutes` as HH:MM.
+ * @param minutes - a duration
  */
 export function formatMinutes(minutes: number): string {
     const sign = minutes < 0 ? "-" : ""
     const absoluteMinutes = Math.abs(minutes)
-    return `${sign}${String(Math.floor(absoluteMinutes / 60)).padStart(2, '0')}:${String(absoluteMinutes % 60).padStart(2, '0')}`
+    return `${sign}${String(Math.floor(absoluteMinutes / 60)).padStart(2, "0")}:${String(absoluteMinutes % 60).padStart(2, "0")}`
 }
 
 /**

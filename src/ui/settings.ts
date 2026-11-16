@@ -1,14 +1,16 @@
 import type { Labels } from "../labels"
+import { formatMinutes } from "../lib/time"
 import type { Attendance } from "../models/attendance"
-import type { MonthPlan } from "../models/month-plan"
-import "./components/calendar"
+import type { MonthPlan } from "../models/month-plan/month-plan"
+import "./components/calendar/calendar"
+import "./components/time-input/time-input"
 
 const SELECTORS = {
     sidebarContent: "[data-slot='sidebar-content']",
 }
 
 interface SettingsOptions {
-    /** The language chosen on the site, such as "fr". */
+    /** The language, such as "fr". */
     lang: string
     /** The labels in the language of the site. */
     labels: Labels
@@ -25,15 +27,16 @@ interface SettingsRenderOptions {
     onChange: () => void
 }
 
-/** Renders the settings block at the bottom of the sidebar. */
+/** Renders the settings block. */
 export class Settings {
     lang: string
     labels: Labels
-    /** The block in the sidebar. */
-    element: HTMLElement
+    rootElement: HTMLElement
     themeSwitchElement: HTMLElement
-    /** The input of the planned capsules, only in the current month. */
+    /** The input of the planned capsules. */
     capsulesInputElement: HTMLInputElement | null
+    /** The text of the time to log on each planned day to reach the goal. */
+    neededDailyTimeElement: HTMLElement | null
     /** The settings of the plan of the month. */
     settingsContainerElement: HTMLElement | null
 
@@ -43,30 +46,35 @@ export class Settings {
         this.labels = labels
         this.themeSwitchElement = themeSwitchElement
 
-        this.element = document.createElement("section")
-        this.element.className = "improved-attendance-settings"
+        this.rootElement = document.createElement("section")
+        this.rootElement.className = "improved-attendance-settings"
 
         this.capsulesInputElement = null
+        this.neededDailyTimeElement = null
         this.settingsContainerElement = null
     }
 
     /** Adds the block to the bottom of the sidebar, and keeps it there. */
     mount(): void {
-        this.element.append(this.themeSwitchElement)
+        const footerContainerElement = document.createElement("div")
+        footerContainerElement.className = "improved-attendance-settings-footer-container"
+        this.rootElement.append(footerContainerElement)
+
+        footerContainerElement.append(this.themeSwitchElement)
 
         const creditElement = document.createElement("a")
-        creditElement.className = "improved-attendance-credit"
+        creditElement.className = "improved-attendance-settings-credit"
         creditElement.href = "https://github.com/parad0xe"
         creditElement.target = "_blank"
         creditElement.rel = "noopener noreferrer"
         creditElement.textContent = "@nlallema"
-        this.element.append(creditElement)
+        footerContainerElement.append(creditElement)
 
-        // The sidebar content can be rendered again, for example when the mobile sidebar opens.
+        // The site can render the sidebar content again.
         const attach = () => {
             const sidebarContentElement = document.querySelector(SELECTORS.sidebarContent)
-            if (sidebarContentElement && !sidebarContentElement.contains(this.element)) {
-                sidebarContentElement.append(this.element)
+            if (sidebarContentElement && !sidebarContentElement.contains(this.rootElement)) {
+                sidebarContentElement.append(this.rootElement)
             }
         }
         attach()
@@ -81,43 +89,84 @@ export class Settings {
         const settingsContainerElement = document.createElement("div")
         settingsContainerElement.className = "improved-attendance-settings-container"
 
-        const titleElement = document.createElement("span")
-        titleElement.className = "improved-attendance-settings-title"
-        titleElement.textContent = this.labels.SETTINGS_DAYS_OFF
+        const daysContainerElement = document.createElement("div")
+        daysContainerElement.className = "improved-attendance-settings-days-container"
+        settingsContainerElement.append(daysContainerElement)
+
+        const daysHeaderElement = document.createElement("div")
+        daysHeaderElement.className = "improved-attendance-settings-row"
+        daysContainerElement.append(daysHeaderElement)
+
+        const daysTitleElement = document.createElement("span")
+        daysTitleElement.className = "improved-attendance-settings-title"
+        daysTitleElement.textContent = this.labels.SETTINGS_DAYS
+        daysHeaderElement.append(daysTitleElement)
+
+        const daysHelpButtonElement = document.createElement("button")
+        daysHelpButtonElement.type = "button"
+        daysHelpButtonElement.className = "improved-attendance-settings-help"
+        daysHelpButtonElement.textContent = "?"
+        daysHelpButtonElement.title = this.labels.SETTINGS_DAYS_HELP
+        daysHelpButtonElement.setAttribute("aria-label", this.labels.SETTINGS_DAYS_HELP)
+        daysHelpButtonElement.setAttribute("aria-expanded", "false")
+        daysHeaderElement.append(daysHelpButtonElement)
 
         const calendarElement = document.createElement("improved-attendance-calendar")
         calendarElement.lang = this.lang
         calendarElement.render(plan, attendance.getDayMarks())
-
-        const hoursRowElement = document.createElement("label")
-        hoursRowElement.className = "improved-attendance-settings-row"
-        hoursRowElement.textContent = this.labels.SETTINGS_HOURS_PER_REMAINING_DAY
-
-        const hoursInputElement = document.createElement("input")
-        hoursInputElement.type = "number"
-        hoursInputElement.min = "0"
-        hoursInputElement.max = "24"
-        hoursInputElement.step = "0.5"
-        hoursInputElement.value = String(plan.dailyMinutes / 60)
-        hoursRowElement.append(hoursInputElement)
-
         calendarElement.addEventListener("change", onChange)
-        hoursInputElement.addEventListener("change", () => {
-            const hours = hoursInputElement.valueAsNumber
-            if (!Number.isFinite(hours) || hours < 0 || hours > 24) {
-                hoursInputElement.value = String(plan.dailyMinutes / 60)
-                return
+        daysContainerElement.append(calendarElement)
+
+        const daysHintElements = this.labels.CALENDAR_HINTS.map(({ key, action }) => {
+            const hintElement = document.createElement("span")
+            hintElement.className = "improved-attendance-settings-hint"
+            hintElement.hidden = true
+            daysContainerElement.append(hintElement)
+
+            const keyElement = document.createElement("strong")
+            keyElement.textContent = key
+            hintElement.append(keyElement, ` ${action}`)
+            return hintElement
+        })
+        daysHelpButtonElement.addEventListener("click", () => {
+            for (const hintElement of daysHintElements) {
+                hintElement.hidden = !hintElement.hidden
             }
-            plan.dailyMinutes = Math.round(hours * 60)
-            onChange()
+            daysHelpButtonElement.setAttribute("aria-expanded", String(!daysHintElements[0].hidden))
         })
 
-        settingsContainerElement.append(titleElement, calendarElement, hoursRowElement)
+        const paceContainerElement = document.createElement("div")
+        paceContainerElement.className = "improved-attendance-settings-pace-container"
+        settingsContainerElement.append(paceContainerElement)
+
+        const paceTitleElement = document.createElement("span")
+        paceTitleElement.className = "improved-attendance-settings-title"
+        paceTitleElement.textContent = this.labels.SETTINGS_PACE
+        paceContainerElement.append(paceTitleElement)
+
+        const dailyTimeColumnElement = document.createElement("div")
+        dailyTimeColumnElement.className = "improved-attendance-settings-column"
+        dailyTimeColumnElement.textContent = this.labels.SETTINGS_DAILY_TIME
+        paceContainerElement.append(dailyTimeColumnElement)
+
+        const timeInputElement = document.createElement("improved-attendance-time-input")
+        timeInputElement.render(plan.dailyMinutes, (dailyMinutes) => {
+            plan.setDailyMinutes(dailyMinutes)
+            onChange()
+            calendarElement.draw()
+        })
+        dailyTimeColumnElement.append(timeInputElement)
+
+        const neededDailyTimeElement = document.createElement("span")
+        neededDailyTimeElement.className = "improved-attendance-settings-hint"
+        this.neededDailyTimeElement = neededDailyTimeElement
+        dailyTimeColumnElement.append(neededDailyTimeElement)
 
         if (plan.isCurrentMonth()) {
             const capsulesRowElement = document.createElement("label")
             capsulesRowElement.className = "improved-attendance-settings-row"
             capsulesRowElement.textContent = this.labels.SETTINGS_CAPSULES_TO_USE
+            paceContainerElement.append(capsulesRowElement)
 
             const capsulesInputElement = document.createElement("input")
             capsulesInputElement.type = "number"
@@ -137,16 +186,14 @@ export class Settings {
                 capsulesInputElement.value = String(plan.capsules)
                 onChange()
             })
-
-            settingsContainerElement.append(capsulesRowElement)
         }
 
         this.settingsContainerElement = settingsContainerElement
-        this.element.prepend(settingsContainerElement)
+        this.rootElement.prepend(settingsContainerElement)
     }
 
     /**
-     * Renders the planned capsules of `plan`, at most `availableCapsules`.
+     * Renders the planned capsules of `plan`.
      * @param plan - the plan of the month
      * @param availableCapsules - the number of capsules left to use
      */
@@ -154,5 +201,15 @@ export class Settings {
         if (!this.capsulesInputElement) { return }
         this.capsulesInputElement.max = String(availableCapsules)
         this.capsulesInputElement.value = String(plan.capsules)
+    }
+
+    /**
+     * Renders the time to log on each planned day to reach the goal.
+     * @param neededMinutes - the time to log on each planned day
+     */
+    renderNeededDailyTime(neededMinutes: number | null): void {
+        if (!this.neededDailyTimeElement) { return }
+        this.neededDailyTimeElement.hidden = neededMinutes === null
+        this.neededDailyTimeElement.textContent = neededMinutes === null ? "" : this.labels.SETTINGS_NEEDED_PER_DAY(formatMinutes(neededMinutes))
     }
 }

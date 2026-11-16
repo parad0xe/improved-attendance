@@ -2,14 +2,18 @@ const LANG_COOKIE_KEY = "PARAGLIDE_LOCALE"
 
 export interface Labels {
     SETTINGS_THEME: string
-    SETTINGS_DAYS_OFF: string
-    SETTINGS_HOURS_PER_REMAINING_DAY: string
+    SETTINGS_DAYS: string
+    SETTINGS_DAYS_HELP: string
+    SETTINGS_PACE: string
+    SETTINGS_DAILY_TIME: string
+    SETTINGS_NEEDED_PER_DAY: (time: string) => string
     SETTINGS_CAPSULES_TO_USE: string
 
     GAP_EXPECTED: (time: string) => string
     GAP_BONUS_DAYS: (days: number) => string
     GAP_MISSING_DAYS: (days: number) => string
-    GAP_REMAINING_TODAY: (time: string) => string
+    GAP_REMAINING_TODAY: string
+    GAP_MONTH_END: string
     GAP_CAPSULES_LEFT: (count: number) => string
     GAP_UNAVAILABLE: string
 
@@ -17,6 +21,13 @@ export interface Labels {
     CALENDAR_WEEKDAYS: string[]
     CALENDAR_PUBLIC_HOLIDAY: string
     CALENDAR_CLOSURE: string
+    CALENDAR_MANUAL: string
+    CALENDAR_HINTS: { key: string, action: string }[]
+    CALENDAR_DAY_DIALOG_CLOSE: string
+    CALENDAR_DAY_DIALOG_OFF: string
+    CALENDAR_DAY_DIALOG_PLANNED_TIME: string
+    CALENDAR_DAY_DIALOG_MANUAL: string
+    CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time: string) => string
 
     ERROR_WORKDAYS_MISSING: string
     ERROR_DATA_UNAVAILABLE: (status: number) => string
@@ -25,26 +36,43 @@ export interface Labels {
     ERROR_PROGRESS_BAR_NOT_FOUND: string
     ERROR_LOGGED_MONTH_NOT_FOUND: string
     ERROR_MONTH_GOAL_NOT_FOUND: string
+    WARNING_RUNNING_SESSION_NOT_FOUND: string
     WARNING_LOGGED_TODAY_NOT_FOUND: string
 }
 
 const LABELS: Record<string, Labels> = {
     fr: {
         SETTINGS_THEME: "Thème",
-        SETTINGS_DAYS_OFF: "Jours de repos",
-        SETTINGS_HOURS_PER_REMAINING_DAY: "Heures par jour restant",
+        SETTINGS_DAYS: "Jours",
+        SETTINGS_DAYS_HELP: "Aide",
+        SETTINGS_PACE: "Rythme",
+        SETTINGS_DAILY_TIME: "Temps par jour par défaut",
+        SETTINGS_NEEDED_PER_DAY: (time) => `Nécessaire : ${time} par jour`,
         SETTINGS_CAPSULES_TO_USE: "Capsules à poser",
 
         GAP_EXPECTED: (time) => `Prévu ${time}`,
         GAP_BONUS_DAYS: (days) => `${days.toFixed(1).replace(".", ",")} ${days < 2 ? "jour" : "jours"} bonus`,
         GAP_MISSING_DAYS: (days) => `${days.toFixed(1).replace(".", ",")} ${days < 2 ? "jour manquant" : "jours manquants"}`,
-        GAP_REMAINING_TODAY: (time) => `reste ${time} aujourd'hui`,
+        GAP_REMAINING_TODAY: "restant aujourd'hui",
+        GAP_MONTH_END: "fin du mois",
         GAP_CAPSULES_LEFT: (count) => `${count} ${count > 1 ? "capsules" : "capsule"} à poser`,
         GAP_UNAVAILABLE: "écart indisponible",
 
         CALENDAR_WEEKDAYS: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
         CALENDAR_PUBLIC_HOLIDAY: "Jour férié",
         CALENDAR_CLOSURE: "Fermeture de l'école",
+        CALENDAR_MANUAL: "Temps personnalisé",
+        CALENDAR_HINTS: [
+            { key: "Clic gauche", action: "jour de repos" },
+            { key: "Clic droit", action: "réglages du jour" },
+            { key: "M", action: "basculer le temps personnalisé (au survol)" },
+            { key: "R", action: "temps par défaut (au survol)" },
+        ],
+        CALENDAR_DAY_DIALOG_CLOSE: "Fermer",
+        CALENDAR_DAY_DIALOG_OFF: "Jour de repos",
+        CALENDAR_DAY_DIALOG_PLANNED_TIME: "Temps prévu",
+        CALENDAR_DAY_DIALOG_MANUAL: "Temps personnalisé",
+        CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time) => `Temps par défaut : ${time}`,
 
         ERROR_WORKDAYS_MISSING: "les jours ouvrés du mois sont introuvables, la page a peut-être changé",
         ERROR_DATA_UNAVAILABLE: (status) => `impossible de charger les données d'attendance (HTTP ${status})`,
@@ -53,24 +81,41 @@ const LABELS: Record<string, Labels> = {
         ERROR_PROGRESS_BAR_NOT_FOUND: "impossible de trouver la barre de progression, la mise en page a peut-être changé",
         ERROR_LOGGED_MONTH_NOT_FOUND: "impossible de trouver le temps logué du mois, la mise en page a peut-être changé",
         ERROR_MONTH_GOAL_NOT_FOUND: "impossible de trouver l'objectif du mois, la mise en page a peut-être changé",
+        WARNING_RUNNING_SESSION_NOT_FOUND: "impossible de trouver la session en cours",
         WARNING_LOGGED_TODAY_NOT_FOUND: "impossible de trouver le temps logué aujourd'hui",
     },
     en: {
         SETTINGS_THEME: "Theme",
-        SETTINGS_DAYS_OFF: "Days off",
-        SETTINGS_HOURS_PER_REMAINING_DAY: "Hours per remaining day",
+        SETTINGS_DAYS: "Days",
+        SETTINGS_DAYS_HELP: "Help",
+        SETTINGS_PACE: "Pace",
+        SETTINGS_DAILY_TIME: "Default time per day",
+        SETTINGS_NEEDED_PER_DAY: (time) => `Needed: ${time} per day`,
         SETTINGS_CAPSULES_TO_USE: "Capsules to use",
 
         GAP_EXPECTED: (time) => `Expected ${time}`,
         GAP_BONUS_DAYS: (days) => `${days.toFixed(1)} bonus ${days < 2 ? "day" : "days"}`,
         GAP_MISSING_DAYS: (days) => `${days.toFixed(1)} missing ${days < 2 ? "day" : "days"}`,
-        GAP_REMAINING_TODAY: (time) => `remaining ${time} today`,
+        GAP_REMAINING_TODAY: "remaining today",
+        GAP_MONTH_END: "month end",
         GAP_CAPSULES_LEFT: (count) => `${count} ${count > 1 ? "capsules" : "capsule"} to use`,
         GAP_UNAVAILABLE: "gap unavailable",
 
         CALENDAR_WEEKDAYS: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         CALENDAR_PUBLIC_HOLIDAY: "Public holiday",
         CALENDAR_CLOSURE: "School closure",
+        CALENDAR_MANUAL: "Custom time",
+        CALENDAR_HINTS: [
+            { key: "Left click", action: "day off" },
+            { key: "Right click", action: "day settings" },
+            { key: "M", action: "toggle the custom time (over a day)" },
+            { key: "R", action: "default time (over a day)" },
+        ],
+        CALENDAR_DAY_DIALOG_CLOSE: "Close",
+        CALENDAR_DAY_DIALOG_OFF: "Day off",
+        CALENDAR_DAY_DIALOG_PLANNED_TIME: "Planned time",
+        CALENDAR_DAY_DIALOG_MANUAL: "Custom time",
+        CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time) => `Default time: ${time}`,
 
         ERROR_WORKDAYS_MISSING: "the working days of the month are missing, the page may have changed",
         ERROR_DATA_UNAVAILABLE: (status) => `cannot load the attendance data (HTTP ${status})`,
@@ -79,19 +124,19 @@ const LABELS: Record<string, Labels> = {
         ERROR_PROGRESS_BAR_NOT_FOUND: "cannot find the progress bar, the page layout may have changed",
         ERROR_LOGGED_MONTH_NOT_FOUND: "cannot find the logged time of the month, the page layout may have changed",
         ERROR_MONTH_GOAL_NOT_FOUND: "cannot find the goal of the month, the page layout may have changed",
+        WARNING_RUNNING_SESSION_NOT_FOUND: "cannot find the running session",
         WARNING_LOGGED_TODAY_NOT_FOUND: "cannot find the time logged today",
     },
 }
 
-/** Returns the language chosen on the site, or English when none was chosen. */
+/** Returns the language of the site. */
 export function loadLang(): string {
-    // document.cookie rather than cookieStore, which Firefox only has since version 140.
     const langCookie = document.cookie.split("; ").find((cookie) => cookie.startsWith(`${LANG_COOKIE_KEY}=`))
     return langCookie ? langCookie.slice(LANG_COOKIE_KEY.length + 1) : "en"
 }
 
 /**
- * Returns the labels in `lang`, or in English when it has none.
+ * Returns the labels in `lang`.
  * @param lang - the language, such as "fr"
  */
 export function getLabels(lang: string): Labels {

@@ -1,14 +1,20 @@
 import { getLabels, loadLang, type Labels } from "./labels"
 import { Attendance } from "./models/attendance"
-import { MonthPlan } from "./models/month-plan"
-import LAYOUT_STYLE from "./styles/layout.css"
-import THEME_STYLE from "./styles/theme.css"
+import { MonthPlan, type MonthTime } from "./models/month-plan/month-plan"
+import PAGE_STYLE from "./ui/styles/page.css"
+import SETTINGS_STYLE from "./ui/styles/settings.css"
+import SITE_DARK_STYLE from "./ui/styles/site-dark.css"
+import THEME_STYLE from "./ui/styles/theme.css"
 import { Page } from "./ui/page"
 import { Settings } from "./ui/settings"
 import { ThemeSwitch } from "./ui/theme-switch"
 
+const SELECTORS = {
+    routeAnnouncer: "#svelte-announcer",
+}
+
 interface StartMonthImprovementsOptions {
-    /** The `Settings` object that renders the plan of the month. */
+    /** The `Settings` object. */
     settings: Settings
     /** The labels in the language of the site. */
     labels: Labels
@@ -23,7 +29,6 @@ interface StartMonthImprovementsOptions {
 function watchUrl(onChange: () => void): void {
     let search = location.search
 
-    // The site changes the URL without any event, but always renders the page again.
     new MutationObserver(() => {
         if (location.search === search) { return }
         search = location.search
@@ -31,7 +36,27 @@ function watchUrl(onChange: () => void): void {
     }).observe(document.body, { childList: true, subtree: true })
 }
 
-/** Starts the improvements of the month in the URL, and returns a function that stops them. */
+/** Resolves once Svelte has hydrated the page. */
+function waitForHydration(): Promise<void> {
+    // SvelteKit adds its route announcer once the page is hydrated.
+    const isHydrated = () => document.querySelector(SELECTORS.routeAnnouncer) !== null
+
+    return new Promise((resolve) => {
+        if (isHydrated()) {
+            resolve()
+            return
+        }
+
+        const observer = new MutationObserver(() => {
+            if (!isHydrated()) { return }
+            observer.disconnect()
+            resolve()
+        })
+        observer.observe(document.body, { childList: true, subtree: true })
+    })
+}
+
+/** Starts the improvements of the month, and returns a function that stops them. */
 async function startMonthImprovements({ settings, labels, isOutdated }: StartMonthImprovementsOptions): Promise<() => void> {
     const attendance = await Attendance.fetch(labels)
     if (isOutdated()) { return () => {} }
@@ -40,38 +65,48 @@ async function startMonthImprovements({ settings, labels, isOutdated }: StartMon
     const page = new Page(labels)
     page.mount()
 
+    const renderMonth = (time: MonthTime) => {
+        page.render(plan, time)
+        settings.renderNeededDailyTime(plan.getNeededDailyMinutes(time))
+    }
+
     const time = page.read()
     if (plan.isCurrentMonth()) {
-        plan.syncCapsules(attendance.availableCapsules, time.monthGoalMinutes)
+        plan.sync({
+            availableCapsules: attendance.availableCapsules,
+            monthGoalMinutes: time.monthGoalMinutes,
+        })
         plan.save()
     }
-    page.render(plan, time)
-
-    const stopWatching = page.watch(async (time) => {
-        // A capsule used on the site lowers the goal of the month.
-        if (plan.isCurrentMonth() && time.monthGoalMinutes !== plan.lastSync?.monthGoalMinutes) {
-            const { availableCapsules } = await Attendance.fetch(labels)
-            plan.syncCapsules(availableCapsules, time.monthGoalMinutes)
-            plan.save()
-            settings.renderCapsules(plan, availableCapsules)
-        }
-        page.render(plan, time)
-    })
 
     settings.render({
         plan,
         attendance,
         onChange: () => {
             plan.save()
-            page.render(plan, page.read())
+            renderMonth(page.read())
         },
     })
-    return stopWatching
+    renderMonth(time)
+
+    return page.watch(async (time) => {
+        // A capsule used on the site lowers the goal of the month.
+        if (plan.isCurrentMonth() && time.monthGoalMinutes !== plan.lastSync?.monthGoalMinutes) {
+            const { availableCapsules } = await Attendance.fetch(labels)
+            plan.sync({
+                availableCapsules,
+                monthGoalMinutes: time.monthGoalMinutes,
+            })
+            plan.save()
+            settings.renderCapsules(plan, availableCapsules)
+        }
+        renderMonth(time)
+    })
 }
 
 function main(): void {
     const styleElement = document.createElement("style")
-    styleElement.textContent = LAYOUT_STYLE + THEME_STYLE
+    styleElement.textContent = PAGE_STYLE + SETTINGS_STYLE + THEME_STYLE + SITE_DARK_STYLE
     document.head.append(styleElement)
 
     const lang = loadLang()
@@ -80,13 +115,13 @@ function main(): void {
     const themeSwitch = new ThemeSwitch(labels)
     themeSwitch.mount()
 
-    const settings = new Settings({ lang, labels, themeSwitchElement: themeSwitch.element })
-    settings.mount()
+    const settings = new Settings({ lang, labels, themeSwitchElement: themeSwitch.rootElement })
+    let isSettingsMounted = false
 
     let lastRun = 0
     let stopMonthImprovements = () => {}
 
-    const restartMonthImprovements = () => requestAnimationFrame(() => requestAnimationFrame(() => {
+    const restartMonthImprovements = () => requestAnimationFrame(() => {
         const run = ++lastRun
         const isOutdated = () => run !== lastRun
 
@@ -104,10 +139,18 @@ function main(): void {
                 console.error(error)
                 Page.renderError(error, labels)
             })
-    }))
+            .finally(() => {
+                // Mounted once, with the plan of the month.
+                if (isSettingsMounted) { return }
+                isSettingsMounted = true
+                settings.mount()
+            })
+    })
 
-    restartMonthImprovements()
-    watchUrl(restartMonthImprovements)
+    waitForHydration().then(() => {
+        restartMonthImprovements()
+        watchUrl(restartMonthImprovements)
+    })
 }
 
 main()

@@ -1,22 +1,17 @@
 import { EXTENSION_NAME } from "../constants"
 import type { Labels } from "../labels"
 import { formatMinutes, parseMinutes } from "../lib/time"
-import type { MonthPlan } from "../models/month-plan"
+import type { MonthPlan, MonthTime } from "../models/month-plan/month-plan"
 
 const SELECTORS = {
     main: "[data-slot='sidebar-inset'] main",
-    summary: "[data-slot='sidebar-inset'] main div:nth-of-type(2) div:nth-of-type(1)",
-    progressTrack: "[data-slot='sidebar-inset'] main div:nth-of-type(2) div:nth-of-type(2) div:nth-of-type(2)",
-    loggedMonth: "[data-slot='sidebar-inset'] main div:nth-of-type(2) > div div:nth-of-type(2) span:nth-of-type(1)",
-    monthGoal: "[data-slot='sidebar-inset'] main div:nth-of-type(2) > div div:nth-of-type(2) span:nth-of-type(3)",
-    timerParts: "[data-slot='sidebar-inset'] main div:nth-of-type(3) div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div > span",
-    loggedToday: "[data-slot='sidebar-inset'] main div:nth-of-type(3) div:nth-of-type(2) > div > div div > span:nth-of-type(1)",
-}
-
-interface PageTime {
-    loggedMonthMinutes: number
-    monthGoalMinutes: number
-    loggedTodayMinutes: number
+    summary: "[data-slot='sidebar-inset'] main div.mb-3 div:nth-of-type(1)",
+    progressTrack: "[data-slot='sidebar-inset'] main div.mb-3 div:nth-of-type(2) div:nth-of-type(2)",
+    loggedMonth: "[data-slot='sidebar-inset'] main div.mb-3 > div div:nth-of-type(2) span:nth-of-type(1)",
+    monthGoal: "[data-slot='sidebar-inset'] main div.mb-3 > div div:nth-of-type(2) span:nth-of-type(3)",
+    timerParts: "[data-slot='sidebar-inset'] main div.mt-8 div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div > span",
+    runningSession: "[data-slot='sidebar-inset'] main div.mt-8 div:nth-of-type(2) > div > div div > span:nth-of-type(1)",
+    loggedToday: "[data-slot='sidebar-inset'] main div.mt-8 div:nth-of-type(2) > div > div div > span:last-of-type",
 }
 
 /**
@@ -33,20 +28,22 @@ function readTimeText(selector: string): [string, boolean] {
 
 /**
  * Returns whether `a` and `b` have the same times.
- * @param a - the logged times and the time to log in the month, in minutes
- * @param b - the logged times and the time to log in the month, in minutes
+ * @param a - the times of the month
+ * @param b - the times of the month
  */
-function isSameTime(a: PageTime, b: PageTime): boolean {
+function isSameTime(a: MonthTime, b: MonthTime): boolean {
     return a.loggedMonthMinutes === b.loggedMonthMinutes
         && a.monthGoalMinutes === b.monthGoalMinutes
+        && a.runningSessionMinutes === b.runningSessionMinutes
         && a.loggedTodayMinutes === b.loggedTodayMinutes
 }
 
+/** Reads the times of the month, and renders the gap and the expected bar. */
 export class Page {
     labels: Labels
-    /** The summary of the month, where the gap is shown. */
+    /** The summary of the month. */
     summaryElement: Element
-    /** The progress bar of the month, where the expected bar is shown. */
+    /** The progress bar of the month. */
     progressTrackElement: Element
 
     /**
@@ -69,25 +66,36 @@ export class Page {
         this.progressTrackElement = progressTrackElement
     }
 
-    /** Prepares the progress bar of the site to hold the expected bar. */
+    /** Prepares the progress bar to hold the expected bar. */
     mount(): void {
         this.progressTrackElement.classList.add("relative")
         this.progressTrackElement.querySelector("div")!.classList.add("relative", "z-[1]")
     }
 
-    read(): PageTime {
-        let [loggedMonthText, hasLoggedMonth] = readTimeText(SELECTORS.loggedMonth)
+    /** Returns the times of the month. */
+    read(): MonthTime {
+        const [loggedMonthText, hasLoggedMonth] = readTimeText(SELECTORS.loggedMonth)
         if (!hasLoggedMonth) {
             throw new Error(`${EXTENSION_NAME}: ${this.labels.ERROR_LOGGED_MONTH_NOT_FOUND}`)
         }
 
-        let [monthGoalText, hasMonthGoal] = readTimeText(SELECTORS.monthGoal)
+        const [monthGoalText, hasMonthGoal] = readTimeText(SELECTORS.monthGoal)
         if (!hasMonthGoal) {
             throw new Error(`${EXTENSION_NAME}: ${this.labels.ERROR_MONTH_GOAL_NOT_FOUND}`)
         }
 
-        let isTimerStarted = document.querySelectorAll(SELECTORS.timerParts).length === 2
-        let [loggedTodayText, hasLoggedToday] = isTimerStarted
+        const timerParts = document.querySelectorAll(SELECTORS.timerParts)
+        const isTimerStarted = timerParts.length === 2
+        const isLoggedToday = timerParts.length >= 1
+
+        const [runningSessionText, hasRunningSession] = isTimerStarted
+            ? readTimeText(SELECTORS.runningSession)
+            : ["00:00", true]
+        if (!hasRunningSession) {
+            console.warn(`${EXTENSION_NAME}: ${this.labels.WARNING_RUNNING_SESSION_NOT_FOUND}`)
+        }
+
+        const [loggedTodayText, hasLoggedToday] = isLoggedToday
             ? readTimeText(SELECTORS.loggedToday)
             : ["00:00", true]
         if (!hasLoggedToday) {
@@ -97,30 +105,31 @@ export class Page {
         return {
             loggedMonthMinutes: parseMinutes(loggedMonthText),
             monthGoalMinutes: parseMinutes(monthGoalText),
-            loggedTodayMinutes: parseMinutes(loggedTodayText.replace("+", "").trim()),
+            runningSessionMinutes: parseMinutes(runningSessionText.replace("+", "").trim()),
+            loggedTodayMinutes: parseMinutes(loggedTodayText.trim()),
         }
     }
 
     /**
      * Renders the expected bar and the gap.
      * @param plan - the plan of the month
-     * @param time - the logged times and the time to log in the month, in minutes
+     * @param time - the times of the month
      */
-    render(plan: MonthPlan, time: PageTime): void {
+    render(plan: MonthPlan, time: MonthTime): void {
         this.renderExpectedBar(plan, time)
         this.renderGap(plan, time)
     }
 
     /**
-     * Renders the expected bar while the logged time is behind it.
+     * Renders the expected bar.
      * @param plan - the plan of the month
-     * @param time - the logged times and the time to log in the month, in minutes
+     * @param time - the times of the month
      */
-    private renderExpectedBar(plan: MonthPlan, time: PageTime): void {
+    private renderExpectedBar(plan: MonthPlan, time: MonthTime): void {
         const expectedMinutes = plan.getExpectedMinutes(time.monthGoalMinutes)
         let expectedBarElement = this.progressTrackElement.querySelector<HTMLElement>(".improved-attendance-expected-bar")
 
-        const loggedTotalMinutes = time.loggedMonthMinutes + time.loggedTodayMinutes
+        const loggedTotalMinutes = time.loggedMonthMinutes + time.runningSessionMinutes
         if (time.loggedMonthMinutes >= plan.getGoalMinutes(time.monthGoalMinutes) || expectedMinutes <= loggedTotalMinutes) {
             expectedBarElement?.remove()
             return
@@ -129,8 +138,8 @@ export class Page {
         if (!expectedBarElement) {
             expectedBarElement = document.createElement("div")
             expectedBarElement.classList.add("improved-attendance-expected-bar")
-            expectedBarElement.style.width = `0%`
-            this.progressTrackElement.appendChild(expectedBarElement)
+            expectedBarElement.style.width = "0%"
+            this.progressTrackElement.append(expectedBarElement)
         }
 
         let expectedBarLabelElement = this.progressTrackElement.querySelector(".improved-attendance-expected-bar-label")
@@ -139,7 +148,7 @@ export class Page {
             expectedBarLabelElement.classList.add("improved-attendance-expected-bar-label")
             expectedBarElement.append(expectedBarLabelElement)
         }
-        expectedBarLabelElement.textContent = `${formatMinutes(expectedMinutes)}`
+        expectedBarLabelElement.textContent = formatMinutes(expectedMinutes)
 
         setTimeout(() => {
             expectedBarElement.style.width = `${expectedMinutes / time.monthGoalMinutes * 100}%`
@@ -147,11 +156,11 @@ export class Page {
     }
 
     /**
-     * Renders the gap between the logged and the expected time.
+     * Renders the gap.
      * @param plan - the plan of the month
-     * @param time - the logged times and the time to log in the month, in minutes
+     * @param time - the times of the month
      */
-    private renderGap(plan: MonthPlan, time: PageTime): void {
+    private renderGap(plan: MonthPlan, time: MonthTime): void {
         this.summaryElement.querySelector(".improved-attendance-gap-container")?.remove()
 
         if (time.loggedMonthMinutes >= plan.getGoalMinutes(time.monthGoalMinutes)) { return }
@@ -159,63 +168,95 @@ export class Page {
         this.summaryElement.classList.add("improved-attendance-summary")
 
         const { start, end } = plan.getExpectedRange(time.monthGoalMinutes)
-        const loggedTotalMinutes = time.loggedMonthMinutes + time.loggedTodayMinutes
-        const expectedMinutes = loggedTotalMinutes < start ? start : end
-        const gapMinutes = Math.abs(expectedMinutes - loggedTotalMinutes)
-        const gapDays = gapMinutes / plan.dailyMinutes
+        const loggedTotalMinutes = time.loggedMonthMinutes + time.runningSessionMinutes
+        const remainingTodayMinutes = plan.getRemainingTodayMinutes(time)
 
-        let gapDirection
+        let expectedMinutes = null
         if (loggedTotalMinutes < start) {
-            gapDirection = {
-                label: `-${formatMinutes(gapMinutes)}`,
-                className: "improved-attendance-missing",
-                formatDays: this.labels.GAP_MISSING_DAYS,
-            }
-        } else if (loggedTotalMinutes < end) {
-            gapDirection = {
-                label: this.labels.GAP_REMAINING_TODAY(formatMinutes(gapMinutes)),
-                className: "improved-attendance-in-progress",
-                formatDays: null,
-            }
-        } else {
-            gapDirection = {
-                label: `+${formatMinutes(gapMinutes)}`,
-                className: "improved-attendance-bonus",
-                formatDays: this.labels.GAP_BONUS_DAYS,
-            }
+            expectedMinutes = start
+        } else if (loggedTotalMinutes >= end || remainingTodayMinutes === 0) {
+            expectedMinutes = end
         }
 
         const gapContainerElement = document.createElement("span")
         gapContainerElement.className = "improved-attendance-gap-container"
         this.summaryElement.prepend(gapContainerElement)
 
-        const gapTimeElement = document.createElement("strong")
-        gapTimeElement.classList.add(gapDirection.className)
-        gapTimeElement.title = this.labels.GAP_EXPECTED(formatMinutes(expectedMinutes))
-        gapTimeElement.textContent = gapDirection.label
-        gapContainerElement.prepend(gapTimeElement)
+        if (expectedMinutes !== null) {
+            const gapMinutes = loggedTotalMinutes - expectedMinutes
+            const isBonus = gapMinutes >= 0
+            const className = isBonus ? "improved-attendance-bonus" : "improved-attendance-missing"
 
-        if (plan.dailyMinutes > 0 && gapDirection.formatDays) {
-            const gapDaysElement = document.createElement("span")
-            gapDaysElement.className = "improved-attendance-gap-days"
-            gapDaysElement.classList.add(gapDirection.className)
-            gapDaysElement.textContent = `(${gapDirection.formatDays(gapDays)})`
-            gapContainerElement.append(gapDaysElement)
+            const gapTodayContainerElement = document.createElement("span")
+            gapTodayContainerElement.className = "improved-attendance-gap-today-container"
+            gapContainerElement.append(gapTodayContainerElement)
+
+            const gapTodayValueElement = document.createElement("strong")
+            gapTodayValueElement.classList.add("improved-attendance-gap-value", className)
+            gapTodayValueElement.title = this.labels.GAP_EXPECTED(formatMinutes(expectedMinutes))
+            gapTodayValueElement.textContent = `${isBonus ? "+" : "-"}${formatMinutes(Math.abs(gapMinutes))}`
+            gapTodayContainerElement.append(gapTodayValueElement)
+
+            if (plan.dailyMinutes > 0) {
+                const formatDays = isBonus ? this.labels.GAP_BONUS_DAYS : this.labels.GAP_MISSING_DAYS
+                const gapTodayLabelElement = document.createElement("span")
+                gapTodayLabelElement.classList.add("improved-attendance-gap-label", className)
+                gapTodayLabelElement.textContent = formatDays(Math.abs(gapMinutes) / plan.dailyMinutes)
+                gapTodayContainerElement.append(gapTodayLabelElement)
+            }
         }
 
-        if (plan.isCurrentMonth() && plan.capsules > 0) {
-            const gapCapsuleElement = document.createElement("span")
-            gapCapsuleElement.className = "improved-attendance-gap-capsule"
-            gapCapsuleElement.textContent = `(${this.labels.GAP_CAPSULES_LEFT(plan.capsules)})`
-            gapContainerElement.append(gapCapsuleElement)
+        if (remainingTodayMinutes > 0) {
+            const gapRemainingTodayContainerElement = document.createElement("span")
+            gapRemainingTodayContainerElement.className = "improved-attendance-gap-remaining-today-container"
+            gapContainerElement.append(gapRemainingTodayContainerElement)
+
+            const gapRemainingTodayValueElement = document.createElement("strong")
+            gapRemainingTodayValueElement.classList.add("improved-attendance-gap-value", "improved-attendance-in-progress")
+            gapRemainingTodayValueElement.textContent = formatMinutes(remainingTodayMinutes)
+            gapRemainingTodayContainerElement.append(gapRemainingTodayValueElement)
+
+            const gapRemainingTodayLabelElement = document.createElement("span")
+            gapRemainingTodayLabelElement.classList.add("improved-attendance-gap-label", "improved-attendance-in-progress")
+            gapRemainingTodayLabelElement.textContent = this.labels.GAP_REMAINING_TODAY
+            gapRemainingTodayContainerElement.append(gapRemainingTodayLabelElement)
+        }
+
+        if (plan.isCurrentMonth()) {
+            const monthEndMinutes = plan.getProjectedMinutes(time) - plan.getGoalMinutes(time.monthGoalMinutes)
+            const isMonthEndBonus = monthEndMinutes >= 0
+            const gapMonthEndContainerElement = document.createElement("span")
+            gapMonthEndContainerElement.className = "improved-attendance-gap-month-end-container"
+            gapContainerElement.append(gapMonthEndContainerElement)
+
+            const gapMonthEndLabelElement = document.createElement("span")
+            gapMonthEndLabelElement.className = "improved-attendance-gap-label"
+            gapMonthEndLabelElement.textContent = this.labels.GAP_MONTH_END
+            gapMonthEndContainerElement.append(gapMonthEndLabelElement)
+
+            const gapMonthEndValueElement = document.createElement("strong")
+            gapMonthEndValueElement.classList.add("improved-attendance-gap-value", isMonthEndBonus ? "improved-attendance-bonus" : "improved-attendance-missing")
+            gapMonthEndValueElement.textContent = `${isMonthEndBonus ? "+" : ""}${formatMinutes(monthEndMinutes)}`
+            gapMonthEndContainerElement.append(gapMonthEndValueElement)
+
+            if (plan.capsules > 0) {
+                const gapCapsuleContainerElement = document.createElement("span")
+                gapCapsuleContainerElement.className = "improved-attendance-gap-capsule-container"
+                gapContainerElement.append(gapCapsuleContainerElement)
+
+                const gapCapsuleLabelElement = document.createElement("span")
+                gapCapsuleLabelElement.classList.add("improved-attendance-gap-label", "improved-attendance-capsule")
+                gapCapsuleLabelElement.textContent = this.labels.GAP_CAPSULES_LEFT(plan.capsules)
+                gapCapsuleContainerElement.append(gapCapsuleLabelElement)
+            }
         }
     }
 
     /**
-     * Calls `onChange` with the new time each time it changes, and returns a function that stops watching.
-     * @param onChange - called with the new logged times and time to log in the month
+     * Calls `onChange` each time the times of the month change, and returns a function that stops watching.
+     * @param onChange - called with the new times of the month
      */
-    watch(onChange: (time: PageTime) => void | Promise<void>): () => void {
+    watch(onChange: (time: MonthTime) => void | Promise<void>): () => void {
         let time = this.read()
 
         const stop = (error: unknown) => {
@@ -241,7 +282,7 @@ export class Page {
 
     /**
      * Replaces the gap with the error.
-     * @param error - the error that stopped the improvements of the month
+     * @param error - the error
      * @param labels - the labels in the language of the site
      */
     static renderError(error: unknown, labels: Labels): void {

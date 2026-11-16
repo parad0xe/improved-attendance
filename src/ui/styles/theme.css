@@ -1,0 +1,43 @@
+:root {
+    --improved-attendance-bonus: #15803d;
+    --improved-attendance-missing: #612c2c;
+    --improved-attendance-in-progress: #cd9b2a;
+    --improved-attendance-expected-bar: #ffca0033;
+    --improved-attendance-expected-label: #4e2f08a1;
+    --improved-attendance-gap-capsule: #a77bff;
+    --improved-attendance-public-holiday: #7c3aed;
+    --improved-attendance-closure: #0d9488;
+
+    --improved-attendance-day-border: #e4e4e7;
+    --improved-attendance-day-hover: #f4f4f5;
+    --improved-attendance-day-off-background: #dbeafe;
+    --improved-attendance-day-off-border: #93c5fd;
+    --improved-attendance-day-off-text: #1d4ed8;
+    --improved-attendance-past-day-border: #f4f4f5;
+    --improved-attendance-past-day-text: #a1a1aa;
+    --improved-attendance-past-day-off-background: #f4f4f5;
+    --improved-attendance-manual-day-dot: #754716;
+    --improved-attendance-day-time: #878c49;
+}
+
+html.dark {
+    --improved-attendance-bonus: #4ade80;
+    --improved-attendance-missing: #f87171;
+    --improved-attendance-in-progress: #fbbf24;
+    --improved-attendance-expected-bar: #facc1530;
+    --improved-attendance-expected-label: #fde68ab3;
+    --improved-attendance-gap-capsule: #a77bff;
+    --improved-attendance-public-holiday: #a78bfa;
+    --improved-attendance-closure: #2dd4bf;
+
+    --improved-attendance-day-border: oklch(100% 0 0 / 12%);
+    --improved-attendance-day-hover: oklch(100% 0 0 / 6%);
+    --improved-attendance-day-off-background: #3b82f633;
+    --improved-attendance-day-off-border: #3b82f680;
+    --improved-attendance-day-off-text: #93c5fd;
+    --improved-attendance-past-day-border: oklch(100% 0 0 / 5%);
+    --improved-attendance-past-day-text: oklch(100% 0 0 / 30%);
+    --improved-attendance-past-day-off-background: oklch(100% 0 0 / 6%);
+    --improved-attendance-manual-day-dot: #754716;
+    --improved-attendance-day-time: #878c49;
+}
