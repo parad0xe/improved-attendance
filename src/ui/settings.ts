@@ -186,7 +186,7 @@ export class Settings {
             capsulesInputElement.min = "0"
             capsulesInputElement.step = "1"
             this.capsulesInputElement = capsulesInputElement
-            this.renderCapsules(plan, attendance.availableCapsules)
+            this.setCapsules(plan, attendance.availableCapsules)
             capsulesRowElement.append(capsulesInputElement)
 
             capsulesInputElement.addEventListener("change", () => {
@@ -210,7 +210,7 @@ export class Settings {
      * @param plan - the plan of the month
      * @param availableCapsules - the number of capsules left to use
      */
-    renderCapsules(plan: MonthPlan, availableCapsules: number): void {
+    setCapsules(plan: MonthPlan, availableCapsules: number): void {
         if (!this.capsulesInputElement) { return }
         this.capsulesInputElement.max = String(availableCapsules)
         this.capsulesInputElement.value = String(plan.capsules)

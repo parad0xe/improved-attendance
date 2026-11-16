@@ -98,7 +98,7 @@ async function startMonthImprovements({ settings, labels, isOutdated }: StartMon
                 monthGoalMinutes: time.monthGoalMinutes,
             })
             plan.save()
-            settings.renderCapsules(plan, availableCapsules)
+            settings.setCapsules(plan, availableCapsules)
         }
         renderMonth(time)
     })
