@@ -1,9 +1,11 @@
-import { MAX_DAILY_MINUTES } from "../constants"
 import type { Labels } from "../labels"
-import { formatMinutes } from "../lib/time"
 import type { Attendance } from "../models/attendance"
 import type { MonthPlan, MonthTime } from "../models/month-plan/month-plan"
 import "./components/calendar/calendar"
+import type {
+    RecommendedDailyTimeElement
+} from "./components/recommended-daily-time/recommended-daily-time"
+import "./components/recommended-daily-time/recommended-daily-time"
 import "./components/time-input/time-input"
 
 const SELECTORS = {
@@ -36,14 +38,8 @@ export class Settings {
     themeSwitchElement: HTMLElement
     /** The input of the planned capsules. */
     capsulesInputElement: HTMLInputElement | null
-    /** The row of the time to log on each planned day to reach the goal. */
-    recommendedDailyTimeRowElement: HTMLElement | null
-    /** The text of the time to log on each planned day to reach the goal. */
-    recommendedDailyTimeElement: HTMLElement | null
-    /** The button of the time to log on each planned day to reach the goal. */
-    recommendedDailyTimeApplyElement: HTMLElement | null
     /** The time to log on each planned day to reach the goal. */
-    recommendedDailyMinutes: number | null
+    recommendedDailyTimeElement: RecommendedDailyTimeElement | null
     /** The settings of the plan of the month. */
     settingsContainerElement: HTMLElement | null
 
@@ -57,11 +53,8 @@ export class Settings {
         this.rootElement.className = "improved-attendance-settings"
 
         this.capsulesInputElement = null
-        this.recommendedDailyTimeRowElement = null
         this.recommendedDailyTimeElement = null
-        this.recommendedDailyMinutes = null
         this.settingsContainerElement = null
-        this.recommendedDailyTimeApplyElement = null
     }
 
     /** Adds the block to the bottom of the sidebar, and keeps it there. */
@@ -169,28 +162,16 @@ export class Settings {
         timeInputElement.render(plan.dailyMinutes, setDailyMinutes)
         dailyTimeColumnElement.append(timeInputElement)
 
-        const recommendedDailyTimeRowElement = document.createElement("div")
-        recommendedDailyTimeRowElement.className = "improved-attendance-settings-row"
-        this.recommendedDailyTimeRowElement = recommendedDailyTimeRowElement
-        dailyTimeColumnElement.append(recommendedDailyTimeRowElement)
-
-        const recommendedDailyTimeElement = document.createElement("span")
-        recommendedDailyTimeElement.className = "improved-attendance-settings-hint"
-        this.recommendedDailyTimeElement = recommendedDailyTimeElement
-        recommendedDailyTimeRowElement.append(recommendedDailyTimeElement)
-
-        const recommendedDailyTimeApplyElement = document.createElement("button")
-        recommendedDailyTimeApplyElement.type = "button"
-        recommendedDailyTimeApplyElement.className = "improved-attendance-settings-button"
-        recommendedDailyTimeApplyElement.textContent = this.labels.SETTINGS_APPLY
-        recommendedDailyTimeApplyElement.title = this.labels.SETTINGS_APPLY_RECOMMENDED
-        this.recommendedDailyTimeApplyElement = recommendedDailyTimeApplyElement
-        recommendedDailyTimeApplyElement.addEventListener("click", () => {
-            if (this.recommendedDailyMinutes === null) { return }
-            timeInputElement.render(this.recommendedDailyMinutes, setDailyMinutes)
-            setDailyMinutes(this.recommendedDailyMinutes)
+        const recommendedDailyTimeElement = document.createElement("improved-attendance-recommended-daily-time")
+        recommendedDailyTimeElement.lang = this.lang
+        recommendedDailyTimeElement.addEventListener("apply", () => {
+            const { dailyMinutes } = recommendedDailyTimeElement
+            if (dailyMinutes === null) { return }
+            timeInputElement.render(dailyMinutes, setDailyMinutes)
+            setDailyMinutes(dailyMinutes)
         })
-        recommendedDailyTimeRowElement.append(recommendedDailyTimeApplyElement)
+        this.recommendedDailyTimeElement = recommendedDailyTimeElement
+        dailyTimeColumnElement.append(recommendedDailyTimeElement)
 
         if (plan.isCurrentMonth()) {
             const capsulesRowElement = document.createElement("label")
@@ -239,14 +220,6 @@ export class Settings {
      * @param time - the times of the month
      */
     setRecommendedDailyTime(plan: MonthPlan, time: MonthTime): void {
-        const recommendedMinutes = plan.getRecommendedDailyMinutes(time)
-        this.recommendedDailyMinutes = recommendedMinutes === null ? null : Math.min(recommendedMinutes, MAX_DAILY_MINUTES)
-        if (!this.recommendedDailyTimeRowElement || !this.recommendedDailyTimeElement || !this.recommendedDailyTimeApplyElement) { return }
-        this.recommendedDailyTimeRowElement.hidden = recommendedMinutes === null
-        this.recommendedDailyTimeElement.textContent = recommendedMinutes === null ? "" : this.labels.SETTINGS_RECOMMENDED(formatMinutes(recommendedMinutes))
-
-        this.recommendedDailyTimeApplyElement.hidden = [...plan.plannedDays.values()].every((plannedDay) => {
-            return plannedDay.isPast() || plannedDay.plannedMinutes === this.recommendedDailyMinutes || plannedDay.isOff || plannedDay.isManual
-        }) || recommendedMinutes === 0
+        this.recommendedDailyTimeElement?.render(plan, time)
     }
 }
