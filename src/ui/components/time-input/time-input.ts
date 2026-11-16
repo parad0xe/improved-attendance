@@ -1,3 +1,4 @@
+import { MAX_DAILY_MINUTES } from "../../../constants"
 import TIME_INPUT_STYLE from "./time-input.css"
 
 /** An input of a time, in hours and minutes. */
@@ -53,7 +54,7 @@ export class TimeInputElement extends HTMLElement {
         const hoursInputElement = document.createElement("input")
         hoursInputElement.type = "number"
         hoursInputElement.min = "0"
-        hoursInputElement.max = "24"
+        hoursInputElement.max = String(MAX_DAILY_MINUTES / 60)
         hoursInputElement.step = "1"
         this.#rootElement.append(hoursInputElement, "h")
 
@@ -76,7 +77,7 @@ export class TimeInputElement extends HTMLElement {
             const hours = hoursInputElement.valueAsNumber
             const minutes = minutesInputElement.valueAsNumber
             if (Number.isFinite(hours) && Number.isFinite(minutes)) {
-                this.#minutes = Math.min(Math.max(0, Math.round(hours * 60 + minutes)), 24 * 60)
+                this.#minutes = Math.min(Math.max(0, Math.round(hours * 60 + minutes)), MAX_DAILY_MINUTES)
                 this.#onChange(this.#minutes)
             }
             renderTime()
