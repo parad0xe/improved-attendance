@@ -1,0 +1,21 @@
+.improved-attendance-settings-theme-switch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    background: var(--card);
+    color: var(--foreground);
+    cursor: pointer;
+}
+.improved-attendance-settings-theme-sun,
+.improved-attendance-settings-theme-moon {
+    width: 20px;
+    height: 20px;
+}
+.improved-attendance-settings-theme-switch[aria-pressed="true"] .improved-attendance-settings-theme-moon,
+.improved-attendance-settings-theme-switch:not([aria-pressed="true"]) .improved-attendance-settings-theme-sun {
+    display: none;
+}

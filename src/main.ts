@@ -5,6 +5,7 @@ import PAGE_STYLE from "./ui/styles/page.css"
 import SETTINGS_STYLE from "./ui/styles/settings.css"
 import SITE_DARK_STYLE from "./ui/styles/site-dark.css"
 import THEME_STYLE from "./ui/styles/theme.css"
+import THEME_SWITCH_STYLE from "./ui/styles/theme-switch.css"
 import { Page } from "./ui/page"
 import { Settings } from "./ui/settings"
 import { ThemeSwitch } from "./ui/theme-switch"
@@ -106,7 +107,7 @@ async function startMonthImprovements({ settings, labels, isOutdated }: StartMon
 
 function main(): void {
     const styleElement = document.createElement("style")
-    styleElement.textContent = PAGE_STYLE + SETTINGS_STYLE + THEME_STYLE + SITE_DARK_STYLE
+    styleElement.textContent = PAGE_STYLE + SETTINGS_STYLE + THEME_SWITCH_STYLE + THEME_STYLE + SITE_DARK_STYLE
     document.head.append(styleElement)
 
     const lang = loadLang()
