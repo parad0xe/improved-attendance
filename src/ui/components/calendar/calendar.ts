@@ -158,11 +158,13 @@ class CalendarElement extends HTMLElement {
     private createDayElement(plan: MonthPlan, plannedDay: PlannedDay): HTMLDivElement {
         const dayElement = document.createElement("div")
         this.#dayDialog?.setDayElement(plannedDay, dayElement)
-        dayElement.classList.add("day")
-        dayElement.classList.toggle("off", !plannedDay.hasPlannedTime())
-        dayElement.textContent = String(plannedDay.date.getDate())
 
         const isPast = plannedDay.isPast()
+
+        dayElement.classList.add("day")
+        dayElement.classList.toggle("off", !plannedDay.hasPlannedTime() && !isPast)
+        dayElement.textContent = String(plannedDay.date.getDate())
+
         if (plannedDay.hasPlannedTime() && plannedDay.isManual && !isPast) {
             const dayTimeElement = document.createElement("span")
             dayTimeElement.classList.add("day-time")

@@ -39,10 +39,6 @@
     color: var(--improved-attendance-past-day-text);
     cursor: default;
 }
-.day.past.off {
-    background: var(--improved-attendance-past-day-off-background);
-    font-weight: normal;
-}
 .day.manual::before {
     content: "";
     position: absolute;
