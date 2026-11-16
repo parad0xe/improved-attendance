@@ -32,29 +32,31 @@ interface SettingsRenderOptions {
 
 /** Renders the settings block. */
 export class Settings {
-    lang: string
-    labels: Labels
-    rootElement: HTMLElement
-    themeSwitchElement: HTMLElement
+    private readonly lang: string
+    private readonly labels: Labels
+
+    private readonly themeSwitchElement: HTMLElement
     /** The input of the planned capsules. */
-    capsulesInputElement: HTMLInputElement | null
+    private capsulesInputElement: HTMLInputElement | null
     /** The time to log on each planned day to reach the goal. */
-    recommendedDailyTimeElement: RecommendedDailyTimeElement | null
+    private recommendedDailyTimeElement: RecommendedDailyTimeElement | null
     /** The settings of the plan of the month. */
-    settingsContainerElement: HTMLElement | null
+    private settingsContainerElement: HTMLElement | null
+
+    readonly rootElement: HTMLElement
 
     /** Creates the settings block. */
     constructor({ lang, labels, themeSwitchElement }: SettingsOptions) {
         this.lang = lang
         this.labels = labels
+
         this.themeSwitchElement = themeSwitchElement
-
-        this.rootElement = document.createElement("section")
-        this.rootElement.className = "improved-attendance-settings"
-
         this.capsulesInputElement = null
         this.recommendedDailyTimeElement = null
         this.settingsContainerElement = null
+
+        this.rootElement = document.createElement("section")
+        this.rootElement.className = "improved-attendance-settings"
     }
 
     /** Adds the block to the bottom of the sidebar, and keeps it there. */
