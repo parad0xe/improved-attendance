@@ -31,9 +31,11 @@ function saveTheme(theme: Theme): void {
 
 /** Renders the theme switch, and applies the chosen theme to the page. */
 export class ThemeSwitch {
-    rootElement: HTMLElement
+    private readonly switchElement: HTMLButtonElement
+
+    readonly rootElement: HTMLElement
+
     theme: Theme
-    private switchElement: HTMLButtonElement
 
     /**
      * Creates the switch with the theme chosen.
