@@ -67,7 +67,7 @@ async function startMonthImprovements({ settings, labels, isOutdated }: StartMon
 
     const renderMonth = (time: MonthTime) => {
         page.render(plan, time)
-        settings.renderNeededDailyTime(plan.getNeededDailyMinutes(time))
+        settings.renderNeededDailyTime(plan, time)
     }
 
     const time = page.read()

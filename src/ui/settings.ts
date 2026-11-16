@@ -1,7 +1,8 @@
+import { MAX_DAILY_MINUTES } from "../constants"
 import type { Labels } from "../labels"
 import { formatMinutes } from "../lib/time"
 import type { Attendance } from "../models/attendance"
-import type { MonthPlan } from "../models/month-plan/month-plan"
+import type { MonthPlan, MonthTime } from "../models/month-plan/month-plan"
 import "./components/calendar/calendar"
 import "./components/time-input/time-input"
 
@@ -35,8 +36,14 @@ export class Settings {
     themeSwitchElement: HTMLElement
     /** The input of the planned capsules. */
     capsulesInputElement: HTMLInputElement | null
+    /** The row of the time to log on each planned day to reach the goal. */
+    neededDailyTimeRowElement: HTMLElement | null
     /** The text of the time to log on each planned day to reach the goal. */
     neededDailyTimeElement: HTMLElement | null
+    /** The button of the time to log on each planned day to reach the goal. */
+    neededDailyTimeApplyElement: HTMLElement | null
+    /** The time to log on each planned day to reach the goal. */
+    neededDailyMinutes: number | null
     /** The settings of the plan of the month. */
     settingsContainerElement: HTMLElement | null
 
@@ -50,8 +57,11 @@ export class Settings {
         this.rootElement.className = "improved-attendance-settings"
 
         this.capsulesInputElement = null
+        this.neededDailyTimeRowElement = null
         this.neededDailyTimeElement = null
+        this.neededDailyMinutes = null
         this.settingsContainerElement = null
+        this.neededDailyTimeApplyElement = null
     }
 
     /** Adds the block to the bottom of the sidebar, and keeps it there. */
@@ -149,18 +159,38 @@ export class Settings {
         dailyTimeColumnElement.textContent = this.labels.SETTINGS_DAILY_TIME
         paceContainerElement.append(dailyTimeColumnElement)
 
-        const timeInputElement = document.createElement("improved-attendance-time-input")
-        timeInputElement.render(plan.dailyMinutes, (dailyMinutes) => {
+        const setDailyMinutes = (dailyMinutes: number) => {
             plan.setDailyMinutes(dailyMinutes)
             onChange()
             calendarElement.draw()
-        })
+        }
+
+        const timeInputElement = document.createElement("improved-attendance-time-input")
+        timeInputElement.render(plan.dailyMinutes, setDailyMinutes)
         dailyTimeColumnElement.append(timeInputElement)
+
+        const neededDailyTimeRowElement = document.createElement("div")
+        neededDailyTimeRowElement.className = "improved-attendance-settings-row"
+        this.neededDailyTimeRowElement = neededDailyTimeRowElement
+        dailyTimeColumnElement.append(neededDailyTimeRowElement)
 
         const neededDailyTimeElement = document.createElement("span")
         neededDailyTimeElement.className = "improved-attendance-settings-hint"
         this.neededDailyTimeElement = neededDailyTimeElement
-        dailyTimeColumnElement.append(neededDailyTimeElement)
+        neededDailyTimeRowElement.append(neededDailyTimeElement)
+
+        const neededDailyTimeApplyElement = document.createElement("button")
+        neededDailyTimeApplyElement.type = "button"
+        neededDailyTimeApplyElement.className = "improved-attendance-settings-button"
+        neededDailyTimeApplyElement.textContent = this.labels.SETTINGS_APPLY
+        neededDailyTimeApplyElement.title = this.labels.SETTINGS_APPLY_NEEDED
+        this.neededDailyTimeApplyElement = neededDailyTimeApplyElement
+        neededDailyTimeApplyElement.addEventListener("click", () => {
+            if (this.neededDailyMinutes === null) { return }
+            timeInputElement.render(this.neededDailyMinutes, setDailyMinutes)
+            setDailyMinutes(this.neededDailyMinutes)
+        })
+        neededDailyTimeRowElement.append(neededDailyTimeApplyElement)
 
         if (plan.isCurrentMonth()) {
             const capsulesRowElement = document.createElement("label")
@@ -205,11 +235,18 @@ export class Settings {
 
     /**
      * Renders the time to log on each planned day to reach the goal.
-     * @param neededMinutes - the time to log on each planned day
+     * @param plan - the plan of the month
+     * @param time - the times of the month
      */
-    renderNeededDailyTime(neededMinutes: number | null): void {
-        if (!this.neededDailyTimeElement) { return }
-        this.neededDailyTimeElement.hidden = neededMinutes === null
-        this.neededDailyTimeElement.textContent = neededMinutes === null ? "" : this.labels.SETTINGS_NEEDED_PER_DAY(formatMinutes(neededMinutes))
+    renderNeededDailyTime(plan: MonthPlan, time: MonthTime): void {
+        const neededMinutes = plan.getNeededDailyMinutes(time)
+        this.neededDailyMinutes = neededMinutes === null ? null : Math.min(neededMinutes, MAX_DAILY_MINUTES)
+        if (!this.neededDailyTimeRowElement || !this.neededDailyTimeElement || !this.neededDailyTimeApplyElement) { return }
+        this.neededDailyTimeRowElement.hidden = neededMinutes === null
+        this.neededDailyTimeElement.textContent = neededMinutes === null ? "" : this.labels.SETTINGS_PER_DAY(formatMinutes(neededMinutes))
+
+        this.neededDailyTimeApplyElement.hidden = [...plan.plannedDays.values()].every((plannedDay) => {
+            return plannedDay.isPast() || plannedDay.plannedMinutes === this.neededDailyMinutes || plannedDay.isOff || plannedDay.isManual
+        }) || neededMinutes === 0
     }
 }
