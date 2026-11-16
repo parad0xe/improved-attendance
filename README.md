@@ -3,6 +3,7 @@
 [![Latest release](https://img.shields.io/github/v/release/parad0xe/improved-attendance)](https://github.com/parad0xe/improved-attendance/releases/latest)
 [![License](https://img.shields.io/github/license/parad0xe/improved-attendance)](LICENSE)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/lbifhclehfgdpjdkpfpjilimhnnedain)](https://chromewebstore.google.com/detail/lbifhclehfgdpjdkpfpjilimhnnedain)
+[![Firefox Add-ons](https://img.shields.io/amo/v/improved-42-attendance)](https://addons.mozilla.org/fr/firefox/addon/improved-42-attendance/)
 
 Improves the [42 Lyon attendance page](https://attendance.42lyon.fr/me) with tools to plan your month and follow your progress
 
@@ -48,10 +49,8 @@ Your plan is saved in your browser, and nothing is sent anywhere
 
 Install the extension from the store of your browser:
 
-- Firefox 128 or later: Firefox Add-ons, link to come
+- Firefox 128 or later: [Firefox Add-ons](https://addons.mozilla.org/fr/firefox/addon/improved-42-attendance)
 - Chrome 111 or later: [Chrome Web Store](https://chromewebstore.google.com/detail/lbifhclehfgdpjdkpfpjilimhnnedain)
-
-Until it is published on Firefox Add-ons, load it in Firefox from the source, see [Development](#development)
 
 ## Updates
 
