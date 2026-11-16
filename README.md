@@ -14,7 +14,7 @@ Improves the [42 Lyon attendance page](https://attendance.42lyon.fr/me) with too
 ### Plan your month
 
 - Choose your days off on a calendar, with weekends, public holidays and school closures off by default
-- Set a default time per day, and a time of its own for any day
+- Set a time per day, and a time of its own for any day
 - Plan the capsules you will use this month
 
 #### Calendar interactions
@@ -24,7 +24,7 @@ Improves the [42 Lyon attendance page](https://attendance.42lyon.fr/me) with too
 | Left click | switches the day between day off and planned day |
 | Right click | opens the settings of the day |
 | M | toggles a custom planned time |
-| R | sets its planned time back to the default time per day |
+| R | sets its planned time back to the time per day |
 
 ---
 
