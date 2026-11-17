@@ -7,14 +7,27 @@
 
 Improves the [42 Lyon attendance page](https://attendance.42lyon.fr/me) with tools to plan your month and follow your progress
 
-![The attendance page with the gap, the calendar of the days off and the settings, in the dark theme](resources/screenshot.png)
+<table>
+  <tr>
+    <td>Light</td>
+    <td>Dark</td>
+  </tr>
+  <tr>
+    <td>
+        <img src="resources/screenshot.white.png" width="1280" alt="The attendance page with the gap, the calendar of the days off and the settings, in the light theme">
+    </td>
+    <td>
+        <img src="resources/screenshot.dark.png" width="1280" alt="The attendance page with the gap, the calendar of the days off and the settings, in the dark theme">
+    </td>
+  </tr>
+</table>
 
 ## Features
 
 ### Plan your month
 
 - Choose your days off on a calendar, with weekends, public holidays and school closures off by default
-- Set a default time per day, and a time of its own for any day
+- Set a time per day, and a time of its own for any day
 - Plan the capsules you will use this month
 
 #### Calendar interactions
@@ -23,8 +36,9 @@ Improves the [42 Lyon attendance page](https://attendance.42lyon.fr/me) with too
 |---|---|
 | Left click | switches the day between day off and planned day |
 | Right click | opens the settings of the day |
+| D | switches the day between day off and planned day |
 | M | toggles a custom planned time |
-| R | sets its planned time back to the default time per day |
+| R | sets its planned time back to the time per day |
 
 ---
 
@@ -33,7 +47,7 @@ Improves the [42 Lyon attendance page](https://attendance.42lyon.fr/me) with too
 - See how far ahead or behind you are today
 - See the time left today
 - See how you will end the month if you follow your plan
-- See the time needed on each planned day to reach the goal
+- See the time recommended on each planned day to reach the goal
 - See the time expected by today on the progress bar
 
 ---

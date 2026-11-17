@@ -1,8 +1,11 @@
 import type { Labels } from "../labels"
-import { formatMinutes } from "../lib/time"
 import type { Attendance } from "../models/attendance"
-import type { MonthPlan } from "../models/month-plan/month-plan"
+import type { MonthPlan, MonthTime } from "../models/month-plan/month-plan"
 import "./components/calendar/calendar"
+import type {
+    RecommendedDailyTimeElement
+} from "./components/recommended-daily-time/recommended-daily-time"
+import "./components/recommended-daily-time/recommended-daily-time"
 import "./components/time-input/time-input"
 
 const SELECTORS = {
@@ -29,29 +32,31 @@ interface SettingsRenderOptions {
 
 /** Renders the settings block. */
 export class Settings {
-    lang: string
-    labels: Labels
-    rootElement: HTMLElement
-    themeSwitchElement: HTMLElement
+    private readonly lang: string
+    private readonly labels: Labels
+
+    private readonly themeSwitchElement: HTMLElement
     /** The input of the planned capsules. */
-    capsulesInputElement: HTMLInputElement | null
-    /** The text of the time to log on each planned day to reach the goal. */
-    neededDailyTimeElement: HTMLElement | null
+    private capsulesInputElement: HTMLInputElement | null
+    /** The time to log on each planned day to reach the goal. */
+    private recommendedDailyTimeElement: RecommendedDailyTimeElement | null
     /** The settings of the plan of the month. */
-    settingsContainerElement: HTMLElement | null
+    private settingsContainerElement: HTMLElement | null
+
+    readonly rootElement: HTMLElement
 
     /** Creates the settings block. */
     constructor({ lang, labels, themeSwitchElement }: SettingsOptions) {
         this.lang = lang
         this.labels = labels
+
         this.themeSwitchElement = themeSwitchElement
+        this.capsulesInputElement = null
+        this.recommendedDailyTimeElement = null
+        this.settingsContainerElement = null
 
         this.rootElement = document.createElement("section")
         this.rootElement.className = "improved-attendance-settings"
-
-        this.capsulesInputElement = null
-        this.neededDailyTimeElement = null
-        this.settingsContainerElement = null
     }
 
     /** Adds the block to the bottom of the sidebar, and keeps it there. */
@@ -149,18 +154,26 @@ export class Settings {
         dailyTimeColumnElement.textContent = this.labels.SETTINGS_DAILY_TIME
         paceContainerElement.append(dailyTimeColumnElement)
 
-        const timeInputElement = document.createElement("improved-attendance-time-input")
-        timeInputElement.render(plan.dailyMinutes, (dailyMinutes) => {
+        const setDailyMinutes = (dailyMinutes: number) => {
             plan.setDailyMinutes(dailyMinutes)
             onChange()
             calendarElement.draw()
-        })
+        }
+
+        const timeInputElement = document.createElement("improved-attendance-time-input")
+        timeInputElement.render(plan.dailyMinutes, setDailyMinutes)
         dailyTimeColumnElement.append(timeInputElement)
 
-        const neededDailyTimeElement = document.createElement("span")
-        neededDailyTimeElement.className = "improved-attendance-settings-hint"
-        this.neededDailyTimeElement = neededDailyTimeElement
-        dailyTimeColumnElement.append(neededDailyTimeElement)
+        const recommendedDailyTimeElement = document.createElement("improved-attendance-recommended-daily-time")
+        recommendedDailyTimeElement.lang = this.lang
+        recommendedDailyTimeElement.addEventListener("apply", () => {
+            const { dailyMinutes } = recommendedDailyTimeElement
+            if (dailyMinutes === null) { return }
+            timeInputElement.render(dailyMinutes, setDailyMinutes)
+            setDailyMinutes(dailyMinutes)
+        })
+        this.recommendedDailyTimeElement = recommendedDailyTimeElement
+        dailyTimeColumnElement.append(recommendedDailyTimeElement)
 
         if (plan.isCurrentMonth()) {
             const capsulesRowElement = document.createElement("label")
@@ -173,7 +186,7 @@ export class Settings {
             capsulesInputElement.min = "0"
             capsulesInputElement.step = "1"
             this.capsulesInputElement = capsulesInputElement
-            this.renderCapsules(plan, attendance.availableCapsules)
+            this.setCapsules(plan, attendance.availableCapsules)
             capsulesRowElement.append(capsulesInputElement)
 
             capsulesInputElement.addEventListener("change", () => {
@@ -197,7 +210,7 @@ export class Settings {
      * @param plan - the plan of the month
      * @param availableCapsules - the number of capsules left to use
      */
-    renderCapsules(plan: MonthPlan, availableCapsules: number): void {
+    setCapsules(plan: MonthPlan, availableCapsules: number): void {
         if (!this.capsulesInputElement) { return }
         this.capsulesInputElement.max = String(availableCapsules)
         this.capsulesInputElement.value = String(plan.capsules)
@@ -205,11 +218,10 @@ export class Settings {
 
     /**
      * Renders the time to log on each planned day to reach the goal.
-     * @param neededMinutes - the time to log on each planned day
+     * @param plan - the plan of the month
+     * @param time - the times of the month
      */
-    renderNeededDailyTime(neededMinutes: number | null): void {
-        if (!this.neededDailyTimeElement) { return }
-        this.neededDailyTimeElement.hidden = neededMinutes === null
-        this.neededDailyTimeElement.textContent = neededMinutes === null ? "" : this.labels.SETTINGS_NEEDED_PER_DAY(formatMinutes(neededMinutes))
+    setRecommendedDailyTime(plan: MonthPlan, time: MonthTime): void {
+        this.recommendedDailyTimeElement?.render(plan, time)
     }
 }

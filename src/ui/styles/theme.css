@@ -10,12 +10,11 @@
 
     --improved-attendance-day-border: #e4e4e7;
     --improved-attendance-day-hover: #f4f4f5;
-    --improved-attendance-day-off-background: #dbeafe;
-    --improved-attendance-day-off-border: #93c5fd;
-    --improved-attendance-day-off-text: #1d4ed8;
+    --improved-attendance-day-off-background: #f6ac3b33;
+    --improved-attendance-day-off-border: #f69d3b80;
+    --improved-attendance-day-off-text: #92400e;
     --improved-attendance-past-day-border: #f4f4f5;
     --improved-attendance-past-day-text: #a1a1aa;
-    --improved-attendance-past-day-off-background: #f4f4f5;
     --improved-attendance-manual-day-dot: #754716;
     --improved-attendance-day-time: #878c49;
 }
@@ -32,12 +31,11 @@ html.dark {
 
     --improved-attendance-day-border: oklch(100% 0 0 / 12%);
     --improved-attendance-day-hover: oklch(100% 0 0 / 6%);
-    --improved-attendance-day-off-background: #3b82f633;
-    --improved-attendance-day-off-border: #3b82f680;
-    --improved-attendance-day-off-text: #93c5fd;
+    --improved-attendance-day-off-background: #f6ac3b33;
+    --improved-attendance-day-off-border: #f69d3b80;
+    --improved-attendance-day-off-text: #fdda93;
     --improved-attendance-past-day-border: oklch(100% 0 0 / 5%);
     --improved-attendance-past-day-text: oklch(100% 0 0 / 30%);
-    --improved-attendance-past-day-off-background: oklch(100% 0 0 / 6%);
     --improved-attendance-manual-day-dot: #754716;
     --improved-attendance-day-time: #878c49;
 }

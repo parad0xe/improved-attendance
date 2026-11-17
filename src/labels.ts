@@ -6,7 +6,9 @@ export interface Labels {
     SETTINGS_DAYS_HELP: string
     SETTINGS_PACE: string
     SETTINGS_DAILY_TIME: string
-    SETTINGS_NEEDED_PER_DAY: (time: string) => string
+    SETTINGS_RECOMMENDED: (time: string) => string
+    SETTINGS_APPLY: string
+    SETTINGS_APPLY_RECOMMENDED: string
     SETTINGS_CAPSULES_TO_USE: string
 
     GAP_EXPECTED: (time: string) => string
@@ -27,7 +29,7 @@ export interface Labels {
     CALENDAR_DAY_DIALOG_OFF: string
     CALENDAR_DAY_DIALOG_PLANNED_TIME: string
     CALENDAR_DAY_DIALOG_MANUAL: string
-    CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time: string) => string
+    CALENDAR_DAY_DIALOG_DAILY_TIME: (time: string) => string
 
     ERROR_WORKDAYS_MISSING: string
     ERROR_DATA_UNAVAILABLE: (status: number) => string
@@ -43,11 +45,13 @@ export interface Labels {
 const LABELS: Record<string, Labels> = {
     fr: {
         SETTINGS_THEME: "Thème",
-        SETTINGS_DAYS: "Jours",
+        SETTINGS_DAYS: "Jours de repos",
         SETTINGS_DAYS_HELP: "Aide",
         SETTINGS_PACE: "Rythme",
-        SETTINGS_DAILY_TIME: "Temps par jour par défaut",
-        SETTINGS_NEEDED_PER_DAY: (time) => `Nécessaire : ${time} par jour`,
+        SETTINGS_DAILY_TIME: "Temps par jour",
+        SETTINGS_RECOMMENDED: (time) => `Recommandé: ${time}`,
+        SETTINGS_APPLY: "Appliquer",
+        SETTINGS_APPLY_RECOMMENDED: "Utiliser comme temps par jour",
         SETTINGS_CAPSULES_TO_USE: "Capsules à poser",
 
         GAP_EXPECTED: (time) => `Prévu ${time}`,
@@ -65,14 +69,15 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_HINTS: [
             { key: "Clic gauche", action: "jour de repos" },
             { key: "Clic droit", action: "réglages du jour" },
+            { key: "D", action: "jour de repos (au survol)" },
             { key: "M", action: "basculer le temps personnalisé (au survol)" },
-            { key: "R", action: "temps par défaut (au survol)" },
+            { key: "R", action: "temps par jour (au survol)" },
         ],
         CALENDAR_DAY_DIALOG_CLOSE: "Fermer",
         CALENDAR_DAY_DIALOG_OFF: "Jour de repos",
         CALENDAR_DAY_DIALOG_PLANNED_TIME: "Temps prévu",
         CALENDAR_DAY_DIALOG_MANUAL: "Temps personnalisé",
-        CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time) => `Temps par défaut : ${time}`,
+        CALENDAR_DAY_DIALOG_DAILY_TIME: (time) => `Temps par jour: ${time}`,
 
         ERROR_WORKDAYS_MISSING: "les jours ouvrés du mois sont introuvables, la page a peut-être changé",
         ERROR_DATA_UNAVAILABLE: (status) => `impossible de charger les données d'attendance (HTTP ${status})`,
@@ -86,11 +91,13 @@ const LABELS: Record<string, Labels> = {
     },
     en: {
         SETTINGS_THEME: "Theme",
-        SETTINGS_DAYS: "Days",
+        SETTINGS_DAYS: "Days off",
         SETTINGS_DAYS_HELP: "Help",
         SETTINGS_PACE: "Pace",
-        SETTINGS_DAILY_TIME: "Default time per day",
-        SETTINGS_NEEDED_PER_DAY: (time) => `Needed: ${time} per day`,
+        SETTINGS_DAILY_TIME: "Time per day",
+        SETTINGS_RECOMMENDED: (time) => `Recommended: ${time}`,
+        SETTINGS_APPLY: "Apply",
+        SETTINGS_APPLY_RECOMMENDED: "Use as time per day",
         SETTINGS_CAPSULES_TO_USE: "Capsules to use",
 
         GAP_EXPECTED: (time) => `Expected ${time}`,
@@ -108,14 +115,15 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_HINTS: [
             { key: "Left click", action: "day off" },
             { key: "Right click", action: "day settings" },
+            { key: "D", action: "day off (over a day)" },
             { key: "M", action: "toggle the custom time (over a day)" },
-            { key: "R", action: "default time (over a day)" },
+            { key: "R", action: "time per day (over a day)" },
         ],
         CALENDAR_DAY_DIALOG_CLOSE: "Close",
         CALENDAR_DAY_DIALOG_OFF: "Day off",
         CALENDAR_DAY_DIALOG_PLANNED_TIME: "Planned time",
         CALENDAR_DAY_DIALOG_MANUAL: "Custom time",
-        CALENDAR_DAY_DIALOG_DEFAULT_TIME: (time) => `Default time: ${time}`,
+        CALENDAR_DAY_DIALOG_DAILY_TIME: (time) => `Time per day: ${time}`,
 
         ERROR_WORKDAYS_MISSING: "the working days of the month are missing, the page may have changed",
         ERROR_DATA_UNAVAILABLE: (status) => `cannot load the attendance data (HTTP ${status})`,

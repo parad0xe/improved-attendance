@@ -70,11 +70,13 @@ class CalendarElement extends HTMLElement {
         if (!this.#plan || !this.#hoveredDay || this.#dayDialog?.isOpen) { return }
 
         const { plannedDay } = this.#hoveredDay
-        if (plannedDay.isPast() || !plannedDay.hasPlannedTime()) { return }
+        if (plannedDay.isPast()) { return }
 
-        if (event.key === "m") {
+        if (event.key === "d") {
+            this.#plan.setDayOff(plannedDay, plannedDay.hasPlannedTime())
+        } else if (event.key === "m" && plannedDay.hasPlannedTime()) {
             this.#plan.setManual(plannedDay, !plannedDay.isManual)
-        } else if (event.key === "r") {
+        } else if (event.key === "r" && plannedDay.hasPlannedTime()) {
             this.#plan.setManual(plannedDay, false)
         } else {
             return
@@ -158,11 +160,13 @@ class CalendarElement extends HTMLElement {
     private createDayElement(plan: MonthPlan, plannedDay: PlannedDay): HTMLDivElement {
         const dayElement = document.createElement("div")
         this.#dayDialog?.setDayElement(plannedDay, dayElement)
-        dayElement.classList.add("day")
-        dayElement.classList.toggle("off", !plannedDay.hasPlannedTime())
-        dayElement.textContent = String(plannedDay.date.getDate())
 
         const isPast = plannedDay.isPast()
+
+        dayElement.classList.add("day")
+        dayElement.classList.toggle("off", !plannedDay.hasPlannedTime() && !isPast)
+        dayElement.textContent = String(plannedDay.date.getDate())
+
         if (plannedDay.hasPlannedTime() && plannedDay.isManual && !isPast) {
             const dayTimeElement = document.createElement("span")
             dayTimeElement.classList.add("day-time")
@@ -175,7 +179,7 @@ class CalendarElement extends HTMLElement {
             dayElement.title = this.getMarkLabel(plannedDay.mark)
         }
 
-        if (plannedDay.hasPlannedTime() && plannedDay.isManual) {
+        if (plannedDay.hasPlannedTime() && plannedDay.isManual && !isPast) {
             dayElement.classList.add("manual")
         }
 

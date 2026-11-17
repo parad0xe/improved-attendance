@@ -159,7 +159,7 @@ export class DayDialogElement extends HTMLElement {
 
         const hintElement = document.createElement("span")
         hintElement.className = "hint"
-        hintElement.textContent = labels.CALENDAR_DAY_DIALOG_DEFAULT_TIME(formatMinutes(plan.dailyMinutes))
+        hintElement.textContent = labels.CALENDAR_DAY_DIALOG_DAILY_TIME(formatMinutes(plan.dailyMinutes))
         this.#rootElement.append(hintElement)
     }
 
