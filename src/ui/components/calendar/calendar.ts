@@ -177,7 +177,7 @@ class CalendarElement extends HTMLElement {
             dayElement.title = this.getMarkLabel(plannedDay.mark)
         }
 
-        if (plannedDay.hasPlannedTime() && plannedDay.isManual) {
+        if (plannedDay.hasPlannedTime() && plannedDay.isManual && !isPast) {
             dayElement.classList.add("manual")
         }
 
