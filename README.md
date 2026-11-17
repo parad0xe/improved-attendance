@@ -23,6 +23,7 @@ Improves the [42 Lyon attendance page](https://attendance.42lyon.fr/me) with too
 |---|---|
 | Left click | switches the day between day off and planned day |
 | Right click | opens the settings of the day |
+| D | switches the day between day off and planned day |
 | M | toggles a custom planned time |
 | R | sets its planned time back to the time per day |
 
