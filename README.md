@@ -7,7 +7,20 @@
 
 Improves the [42 Lyon attendance page](https://attendance.42lyon.fr/me) with tools to plan your month and follow your progress
 
-![The attendance page with the gap, the calendar of the days off and the settings, in the dark theme](resources/screenshot.png)
+<table>
+  <tr>
+    <td>Light</td>
+    <td>Dark</td>
+  </tr>
+  <tr>
+    <td>
+        <img src="resources/screenshot.white.png" width="1280" alt="The attendance page with the gap, the calendar of the days off and the settings, in the light theme">
+    </td>
+    <td>
+        <img src="resources/screenshot.dark.png" width="1280" alt="The attendance page with the gap, the calendar of the days off and the settings, in the dark theme">
+    </td>
+  </tr>
+</table>
 
 ## Features
 
