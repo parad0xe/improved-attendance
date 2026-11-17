@@ -69,6 +69,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_HINTS: [
             { key: "Clic gauche", action: "jour de repos" },
             { key: "Clic droit", action: "réglages du jour" },
+            { key: "D", action: "jour de repos (au survol)" },
             { key: "M", action: "basculer le temps personnalisé (au survol)" },
             { key: "R", action: "temps par jour (au survol)" },
         ],
@@ -114,6 +115,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_HINTS: [
             { key: "Left click", action: "day off" },
             { key: "Right click", action: "day settings" },
+            { key: "D", action: "day off (over a day)" },
             { key: "M", action: "toggle the custom time (over a day)" },
             { key: "R", action: "time per day (over a day)" },
         ],
