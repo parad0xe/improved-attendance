@@ -198,6 +198,22 @@ export class MonthPlan {
     }
 
     /**
+     * Returns the default time to plan `minutes` on `plannedDays`.
+     * @param minutes - the time to plan
+     * @param plannedDays - the days of the plan
+     */
+    private getDailyMinutesToPlan(minutes: number, plannedDays: PlannedDay[]): number {
+        const maxOpenMinutes = plannedDays.map((plannedDay) => plannedDay.maxOpenMinutes).sort((a, b) => a - b)
+        let remainingMinutes = minutes
+        for (const [index, dayMaxMinutes] of maxOpenMinutes.entries()) {
+            const sharedMinutes = remainingMinutes / (maxOpenMinutes.length - index)
+            if (sharedMinutes <= dayMaxMinutes) { return sharedMinutes }
+            remainingMinutes -= dayMaxMinutes
+        }
+        return maxOpenMinutes.at(-1) ?? Infinity
+    }
+
+    /**
      * Returns the time to log on each day with planned time to reach the goal.
      * @param time - the times of the month
      * @param now - the current date
@@ -209,19 +225,19 @@ export class MonthPlan {
         const manualMinutes = remainingDays
             .filter((plannedDay) => plannedDay.isManual)
             .reduce((minutes, plannedDay) => minutes + plannedDay.plannedMinutes, 0)
-        const dailyTimeDays = remainingDays.filter((plannedDay) => !plannedDay.isManual).length
+        const dailyTimeDays = remainingDays.filter((plannedDay) => !plannedDay.isManual)
         const today = this.hasPlannedTime(now) ? this.getPlannedDay(now.getDate()) ?? null : null
 
-        if (dailyTimeDays === 0 && (today === null || today.isManual)) { return null }
+        if (dailyTimeDays.length === 0 && (today === null || today.isManual)) { return null }
         if (loggedMinutes >= goalMinutes) { return 0 }
 
-        const afterTodayMinutes = dailyTimeDays > 0 ? (goalMinutes - manualMinutes - loggedMinutes) / dailyTimeDays : Infinity
+        const afterTodayMinutes = this.getDailyMinutesToPlan(goalMinutes - manualMinutes - loggedMinutes, dailyTimeDays)
         if (today === null) { return Math.ceil(Math.max(0, afterTodayMinutes)) }
 
         const loggedBeforeTodayMinutes = loggedMinutes - time.loggedTodayMinutes
         const withTodayMinutes = today.isManual
-            ? (goalMinutes - manualMinutes - loggedBeforeTodayMinutes - today.plannedMinutes) / dailyTimeDays
-            : (goalMinutes - manualMinutes - loggedBeforeTodayMinutes) / (dailyTimeDays + 1)
+            ? this.getDailyMinutesToPlan(goalMinutes - manualMinutes - loggedBeforeTodayMinutes - today.plannedMinutes, dailyTimeDays)
+            : this.getDailyMinutesToPlan(goalMinutes - manualMinutes - loggedBeforeTodayMinutes, [...dailyTimeDays, today])
         return Math.ceil(Math.max(0, Math.min(withTodayMinutes, afterTodayMinutes)))
     }
 
