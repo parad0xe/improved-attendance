@@ -171,6 +171,14 @@ export class MonthPlan {
     }
 
     /**
+     * Returns the number of days with planned time from the day of `now`.
+     * @param now - the current date
+     */
+    countPlannedDaysFromToday(now = getSchoolToday()): number {
+        return this.getRemainingDays(now).length + (this.hasPlannedTime(now) ? 1 : 0)
+    }
+
+    /**
      * Returns the time planned after `now`.
      * @param now - the current date
      */
@@ -184,6 +192,14 @@ export class MonthPlan {
      */
     isCurrentMonth(now = getSchoolToday()): boolean {
         return this.year === now.getFullYear() && this.monthIndex === now.getMonth()
+    }
+
+    /**
+     * Returns whether the plan is for a month before the month of `now`.
+     * @param now - the current date
+     */
+    isPastMonth(now = getSchoolToday()): boolean {
+        return this.year < now.getFullYear() || (this.year === now.getFullYear() && this.monthIndex < now.getMonth())
     }
 
     /**

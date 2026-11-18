@@ -68,6 +68,7 @@ async function startMonthImprovements({ settings, labels, isOutdated }: StartMon
 
     const renderMonth = (time: MonthTime) => {
         page.render(plan, time)
+        settings.setPlannedDays(plan)
         settings.setRecommendedDailyTime(plan, time)
     }
 

@@ -5,6 +5,7 @@ export interface Labels {
     SETTINGS_DAYS: string
     SETTINGS_DAYS_HELP: string
     SETTINGS_PACE: string
+    SETTINGS_PLANNED_DAYS: (count: number) => string
     SETTINGS_DAILY_TIME: string
     SETTINGS_RECOMMENDED: (time: string) => string
     SETTINGS_APPLY: string
@@ -54,6 +55,7 @@ const LABELS: Record<string, Labels> = {
         SETTINGS_DAYS: "Jours de repos",
         SETTINGS_DAYS_HELP: "Aide",
         SETTINGS_PACE: "Rythme",
+        SETTINGS_PLANNED_DAYS: (count) => `${count} ${count > 1 ? "jours planifiés" : "jour planifié"}`,
         SETTINGS_DAILY_TIME: "Temps par jour",
         SETTINGS_RECOMMENDED: (time) => `Recommandé: ${time}`,
         SETTINGS_APPLY: "Appliquer",
@@ -106,6 +108,7 @@ const LABELS: Record<string, Labels> = {
         SETTINGS_DAYS: "Days off",
         SETTINGS_DAYS_HELP: "Help",
         SETTINGS_PACE: "Pace",
+        SETTINGS_PLANNED_DAYS: (count) => `${count} planned ${count === 1 ? "day" : "days"}`,
         SETTINGS_DAILY_TIME: "Time per day",
         SETTINGS_RECOMMENDED: (time) => `Recommended: ${time}`,
         SETTINGS_APPLY: "Apply",
