@@ -1,10 +1,11 @@
 import { EXTENSION_NAME, WORKDAY_MINUTES } from "../constants"
 import type { Labels } from "../labels"
 import { decodeDevalue } from "../lib/devalue"
-import { getDaysInMonth } from "../lib/time"
+import { getDaysInMonth, getTimeZoneOffsetMinutes } from "../lib/time"
 
 const CLOSURE_START_HOUR = 8
 const CLOSURE_END_HOUR = 20
+const SCHOOL_TIME_ZONE = "Europe/Paris"
 
 interface AttendanceCalendar {
     year: number
@@ -73,23 +74,40 @@ export class Attendance {
     }
 
     /**
-     * Returns whether a closure covers the workday of `date`.
+     * Returns the timestamp at `hour` in the school time zone on the day of `date`.
+     * @param date - a day of the month
+     * @param hour - the hour in the school time zone
+     */
+    private getSchoolTimestamp(date: Date, hour: number): number {
+        const utcTimestamp = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), hour)
+        const offsetMinutes = getTimeZoneOffsetMinutes(SCHOOL_TIME_ZONE, new Date(utcTimestamp))
+        return utcTimestamp - offsetMinutes * 60 * 1000
+    }
+
+    /**
+     * Returns whether the closures cover the workday of `date`.
      * @param date - a day of the month
      */
     isClosedDay(date: Date): boolean {
-        const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), CLOSURE_START_HOUR)
-        const dayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate(), CLOSURE_END_HOUR)
+        const dayStartTimestamp = this.getSchoolTimestamp(date, CLOSURE_START_HOUR)
+        const dayEndTimestamp = this.getSchoolTimestamp(date, CLOSURE_END_HOUR)
 
-        let closedMinutes = 0
-        for (const closure of this.history.closures) {
-            const start = closure.beginAt > dayStart ? closure.beginAt : dayStart
-            const end = closure.endAt < dayEnd ? closure.endAt : dayEnd
-            if (end > start) {
-                closedMinutes += (end.getTime() - start.getTime()) / (60 * 1000)
+        const intervals = this.history.closures
+            .map(({ beginAt, endAt }) => [Math.max(beginAt.getTime(), dayStartTimestamp), Math.min(endAt.getTime(), dayEndTimestamp)])
+            .filter(([startTimestamp, endTimestamp]) => endTimestamp > startTimestamp)
+            .sort((a, b) => a[0] - b[0])
+
+        let closedMilliseconds = 0
+        let coveredUntilTimestamp = dayStartTimestamp
+        for (const [startTimestamp, endTimestamp] of intervals) {
+            const fromTimestamp = Math.max(startTimestamp, coveredUntilTimestamp)
+            if (endTimestamp > fromTimestamp) {
+                closedMilliseconds += endTimestamp - fromTimestamp
+                coveredUntilTimestamp = endTimestamp
             }
         }
 
-        return closedMinutes >= WORKDAY_MINUTES
+        return closedMilliseconds >= WORKDAY_MINUTES * 60 * 1000
     }
 
     /**
