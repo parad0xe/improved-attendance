@@ -77,8 +77,9 @@ export class RecommendedDailyTimeElement extends HTMLElement {
 
         this.#timeElement.textContent = getLabels(this.lang).SETTINGS_RECOMMENDED(formatMinutes(this.#recommendedMinutes))
 
+        const recommendedMinutes = this.#recommendedMinutes
         this.#applyElement.hidden = [...this.#plan.plannedDays.values()].every((plannedDay) => {
-            return plannedDay.isPast() || plannedDay.plannedMinutes === this.dailyMinutes || plannedDay.isOff || plannedDay.isManual
+            return plannedDay.isPast() || plannedDay.plannedMinutes === Math.min(recommendedMinutes, plannedDay.maxOpenMinutes) || plannedDay.isOff || plannedDay.isManual
         }) || this.#recommendedMinutes === 0
     }
 }

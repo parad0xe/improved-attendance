@@ -1,4 +1,4 @@
-import { EXTENSION_NAME, WORKDAY_MINUTES } from "../constants"
+import { EXTENSION_NAME, MAX_DAILY_MINUTES, WORKDAY_MINUTES } from "../constants"
 import type { Labels } from "../labels"
 import { decodeDevalue } from "../lib/devalue"
 import { getDayInTimeZone, getDaysInMonth, getTimeZoneOffsetMinutes } from "../lib/time"
@@ -85,12 +85,14 @@ export class Attendance {
     }
 
     /**
-     * Returns whether the closures cover the workday of `date`.
+     * Returns the time covered by the closures between `startHour` and `endHour` on the day of `date`, in minutes.
      * @param date - a day of the month
+     * @param startHour - the start hour in the school time zone
+     * @param endHour - the end hour in the school time zone
      */
-    isClosedDay(date: Date): boolean {
-        const dayStartTimestamp = this.getSchoolTimestamp(date, CLOSURE_START_HOUR)
-        const dayEndTimestamp = this.getSchoolTimestamp(date, CLOSURE_END_HOUR)
+    private getClosedMinutes(date: Date, startHour: number, endHour: number): number {
+        const dayStartTimestamp = this.getSchoolTimestamp(date, startHour)
+        const dayEndTimestamp = this.getSchoolTimestamp(date, endHour)
 
         const intervals = this.history.closures
             .map(({ beginAt, endAt }) => [Math.max(beginAt.getTime(), dayStartTimestamp), Math.min(endAt.getTime(), dayEndTimestamp)])
@@ -107,7 +109,23 @@ export class Attendance {
             }
         }
 
-        return closedMilliseconds >= WORKDAY_MINUTES * 60 * 1000
+        return closedMilliseconds / (60 * 1000)
+    }
+
+    /**
+     * Returns whether the closures cover the workday of `date`.
+     * @param date - a day of the month
+     */
+    isClosedDay(date: Date): boolean {
+        return this.getClosedMinutes(date, CLOSURE_START_HOUR, CLOSURE_END_HOUR) >= WORKDAY_MINUTES
+    }
+
+    /**
+     * Returns the time without closure on the day of `date`, in minutes.
+     * @param date - a day of the month
+     */
+    getOpenMinutes(date: Date): number {
+        return Math.max(0, MAX_DAILY_MINUTES - Math.ceil(this.getClosedMinutes(date, 0, 24)))
     }
 
     /**

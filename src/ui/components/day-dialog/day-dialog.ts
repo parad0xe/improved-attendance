@@ -1,3 +1,4 @@
+import { MAX_DAILY_MINUTES } from "../../../constants"
 import { getLabels } from "../../../labels"
 import { formatMinutes } from "../../../lib/time"
 import type { MonthPlan } from "../../../models/month-plan/month-plan"
@@ -142,7 +143,7 @@ export class DayDialogElement extends HTMLElement {
                 plan.setPlannedMinutes(plannedDay, plannedMinutes)
                 this.#onChange()
                 this.draw()
-            })
+            }, plannedDay.maxOpenMinutes)
             plannedTimeRowElement.append(timeInputElement)
 
             const manualRowElement = this.createCheckboxRow({
@@ -160,6 +161,9 @@ export class DayDialogElement extends HTMLElement {
         const hintElement = document.createElement("span")
         hintElement.className = "hint"
         hintElement.textContent = labels.CALENDAR_DAY_DIALOG_DAILY_TIME(formatMinutes(plan.dailyMinutes))
+        if (plannedDay.maxOpenMinutes < MAX_DAILY_MINUTES) {
+            hintElement.append(document.createElement("br"), labels.CALENDAR_DAY_DIALOG_MAX_TIME(formatMinutes(plannedDay.maxOpenMinutes)))
+        }
         this.#rootElement.append(hintElement)
     }
 

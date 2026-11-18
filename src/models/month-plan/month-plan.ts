@@ -90,6 +90,7 @@ export class MonthPlan {
         const createPlannedDay = (day: number, { isOff, plannedMinutes, isManual }: SerializedPlannedDay) => new PlannedDay({
             date: new Date(year, monthIndex, day),
             mark: dayMarks.get(day) ?? null,
+            maxOpenMinutes: attendance.getOpenMinutes(new Date(year, monthIndex, day)),
             isOff,
             plannedMinutes,
             isManual,
@@ -299,7 +300,7 @@ export class MonthPlan {
      */
     setPlannedMinutes(plannedDay: PlannedDay, plannedMinutes: number): void {
         plannedDay.plannedMinutes = plannedMinutes
-        plannedDay.isManual = plannedMinutes !== this.dailyMinutes
+        plannedDay.isManual = plannedDay.plannedMinutes !== Math.min(this.dailyMinutes, plannedDay.maxOpenMinutes)
     }
 
     /**

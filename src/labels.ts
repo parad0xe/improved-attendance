@@ -30,6 +30,7 @@ export interface Labels {
     CALENDAR_DAY_DIALOG_PLANNED_TIME: string
     CALENDAR_DAY_DIALOG_MANUAL: string
     CALENDAR_DAY_DIALOG_DAILY_TIME: (time: string) => string
+    CALENDAR_DAY_DIALOG_MAX_TIME: (time: string) => string
 
     ERROR_MONTH_MISSING: string
     ERROR_WORKDAYS_MISSING: string
@@ -83,6 +84,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_DAY_DIALOG_PLANNED_TIME: "Temps prévu",
         CALENDAR_DAY_DIALOG_MANUAL: "Temps personnalisé",
         CALENDAR_DAY_DIALOG_DAILY_TIME: (time) => `Temps par jour: ${time}`,
+        CALENDAR_DAY_DIALOG_MAX_TIME: (time) => `Maximum: ${time}`,
 
         ERROR_MONTH_MISSING: "le mois du calendrier est introuvable, les données reçues ont peut-être changé",
         ERROR_WORKDAYS_MISSING: "les jours ouvrés du mois sont introuvables, les données reçues ont peut-être changé",
@@ -134,6 +136,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_DAY_DIALOG_PLANNED_TIME: "Planned time",
         CALENDAR_DAY_DIALOG_MANUAL: "Custom time",
         CALENDAR_DAY_DIALOG_DAILY_TIME: (time) => `Time per day: ${time}`,
+        CALENDAR_DAY_DIALOG_MAX_TIME: (time) => `Maximum: ${time}`,
 
         ERROR_MONTH_MISSING: "the month of the calendar is missing, the received data may have changed",
         ERROR_WORKDAYS_MISSING: "the working days of the month are missing, the received data may have changed",
