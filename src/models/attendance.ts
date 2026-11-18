@@ -11,7 +11,7 @@ interface AttendanceCalendar {
     year: number
     /** The month, 0 for January. */
     monthIndex: number
-    /** The workdays of the month. */
+    /** The workdays of the month, at midnight. */
     workdays: Date[]
 }
 
@@ -63,7 +63,7 @@ export class Attendance {
         this.calendar = {
             year: calendar.year,
             monthIndex: calendar.monthIndex,
-            workdays: calendar.workdays,
+            workdays: calendar.workdays.map((workday: Date) => new Date(workday.getUTCFullYear(), workday.getUTCMonth(), workday.getUTCDate())),
         }
 
         this.history = {
