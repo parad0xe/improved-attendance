@@ -24,6 +24,7 @@ export interface Labels {
     CALENDAR_WEEKDAYS: string[]
     CALENDAR_PUBLIC_HOLIDAY: string
     CALENDAR_CLOSURE: string
+    CALENDAR_PARTIAL_CLOSURE: string
     CALENDAR_MANUAL: string
     CALENDAR_HINTS: { key: string, action: string }[]
     CALENDAR_DAY_DIALOG_CLOSE: string
@@ -73,6 +74,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_WEEKDAYS: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
         CALENDAR_PUBLIC_HOLIDAY: "Jour férié",
         CALENDAR_CLOSURE: "Fermeture de l'école",
+        CALENDAR_PARTIAL_CLOSURE: "Fermeture partielle",
         CALENDAR_MANUAL: "Temps personnalisé",
         CALENDAR_HINTS: [
             { key: "Clic gauche", action: "jour de repos" },
@@ -126,6 +128,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_WEEKDAYS: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         CALENDAR_PUBLIC_HOLIDAY: "Public holiday",
         CALENDAR_CLOSURE: "School closure",
+        CALENDAR_PARTIAL_CLOSURE: "Partial closure",
         CALENDAR_MANUAL: "Custom time",
         CALENDAR_HINTS: [
             { key: "Left click", action: "day off" },

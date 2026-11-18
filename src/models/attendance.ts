@@ -24,7 +24,7 @@ interface AttendanceHistory {
     closures: AttendanceClosure[]
 }
 
-export type DayMark = "public-holiday" | "closure"
+export type DayMark = "public-holiday" | "closure" | "partial-closure"
 
 export class Attendance {
     calendar: AttendanceCalendar
@@ -156,6 +156,8 @@ export class Attendance {
                 dayMarks.set(day, "public-holiday")
             } else if (this.isWorkday(date) && this.isClosedDay(date)) {
                 dayMarks.set(day, "closure")
+            } else if (this.isWorkday(date) && this.getOpenMinutes(date) < MAX_DAILY_MINUTES) {
+                dayMarks.set(day, "partial-closure")
             }
         }
 
