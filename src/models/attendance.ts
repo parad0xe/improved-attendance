@@ -37,10 +37,26 @@ export class Attendance {
      * @param labels - the labels in the language of the site
      */
     constructor(data: Record<string, any>, labels: Labels) {
-        const { calendar, history } = data
+        const { calendar, history, availableCapsules } = data
 
-        if (!Array.isArray(calendar?.workdays) || !calendar.workdays.every((day: unknown) => day instanceof Date)) {
+        if (!Number.isInteger(calendar?.year) || !Number.isInteger(calendar?.monthIndex)) {
+            throw new Error(`${EXTENSION_NAME}: ${labels.ERROR_MONTH_MISSING}`)
+        }
+        if (!Array.isArray(calendar.workdays) || !calendar.workdays.every((day: unknown) => day instanceof Date)) {
             throw new Error(`${EXTENSION_NAME}: ${labels.ERROR_WORKDAYS_MISSING}`)
+        }
+
+        if (!Array.isArray(history?.closures)) {
+            console.warn(`${EXTENSION_NAME}: ${labels.WARNING_CLOSURES_NOT_FOUND}`)
+        }
+        const closures: unknown[] = Array.isArray(history?.closures) ? history.closures : []
+        const validClosures = closures.filter((closure: any) => closure?.beginAt instanceof Date && closure?.endAt instanceof Date)
+        if (validClosures.length < closures.length) {
+            console.warn(`${EXTENSION_NAME}: ${labels.WARNING_INVALID_CLOSURES}`)
+        }
+
+        if (!Array.isArray(availableCapsules)) {
+            console.warn(`${EXTENSION_NAME}: ${labels.WARNING_CAPSULES_NOT_FOUND}`)
         }
 
         this.calendar = {
@@ -50,10 +66,10 @@ export class Attendance {
         }
 
         this.history = {
-            closures: history?.closures ?? [],
+            closures: validClosures as AttendanceClosure[],
         }
 
-        this.availableCapsules = Array.isArray(data.availableCapsules) ? data.availableCapsules.length : 0
+        this.availableCapsules = Array.isArray(availableCapsules) ? availableCapsules.length : 0
     }
 
     /**

@@ -31,6 +31,7 @@ export interface Labels {
     CALENDAR_DAY_DIALOG_MANUAL: string
     CALENDAR_DAY_DIALOG_DAILY_TIME: (time: string) => string
 
+    ERROR_MONTH_MISSING: string
     ERROR_WORKDAYS_MISSING: string
     ERROR_DATA_UNAVAILABLE: (status: number) => string
     ERROR_SESSION_EXPIRED: string
@@ -38,8 +39,12 @@ export interface Labels {
     ERROR_PROGRESS_BAR_NOT_FOUND: string
     ERROR_LOGGED_MONTH_NOT_FOUND: string
     ERROR_MONTH_GOAL_NOT_FOUND: string
+
     WARNING_RUNNING_SESSION_NOT_FOUND: string
     WARNING_LOGGED_TODAY_NOT_FOUND: string
+    WARNING_CLOSURES_NOT_FOUND: string
+    WARNING_INVALID_CLOSURES: string
+    WARNING_CAPSULES_NOT_FOUND: string
 }
 
 const LABELS: Record<string, Labels> = {
@@ -79,15 +84,20 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_DAY_DIALOG_MANUAL: "Temps personnalisé",
         CALENDAR_DAY_DIALOG_DAILY_TIME: (time) => `Temps par jour: ${time}`,
 
-        ERROR_WORKDAYS_MISSING: "les jours ouvrés du mois sont introuvables, la page a peut-être changé",
+        ERROR_MONTH_MISSING: "le mois du calendrier est introuvable, les données reçues ont peut-être changé",
+        ERROR_WORKDAYS_MISSING: "les jours ouvrés du mois sont introuvables, les données reçues ont peut-être changé",
         ERROR_DATA_UNAVAILABLE: (status) => `impossible de charger les données d'attendance (HTTP ${status})`,
         ERROR_SESSION_EXPIRED: "la session a expiré, rechargez la page",
         ERROR_SUMMARY_NOT_FOUND: "impossible de trouver le résumé du mois, la mise en page a peut-être changé",
         ERROR_PROGRESS_BAR_NOT_FOUND: "impossible de trouver la barre de progression, la mise en page a peut-être changé",
         ERROR_LOGGED_MONTH_NOT_FOUND: "impossible de trouver le temps logué du mois, la mise en page a peut-être changé",
         ERROR_MONTH_GOAL_NOT_FOUND: "impossible de trouver l'objectif du mois, la mise en page a peut-être changé",
+
         WARNING_RUNNING_SESSION_NOT_FOUND: "impossible de trouver la session en cours",
         WARNING_LOGGED_TODAY_NOT_FOUND: "impossible de trouver le temps logué aujourd'hui",
+        WARNING_CLOSURES_NOT_FOUND: "impossible de trouver les fermetures de l'école, les données reçues ont peut-être changé",
+        WARNING_INVALID_CLOSURES: "certaines fermetures de l'école sont illisibles, les données reçues ont peut-être changé",
+        WARNING_CAPSULES_NOT_FOUND: "impossible de trouver les capsules disponibles, les données reçues ont peut-être changé",
     },
     en: {
         SETTINGS_THEME: "Theme",
@@ -125,15 +135,20 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_DAY_DIALOG_MANUAL: "Custom time",
         CALENDAR_DAY_DIALOG_DAILY_TIME: (time) => `Time per day: ${time}`,
 
-        ERROR_WORKDAYS_MISSING: "the working days of the month are missing, the page may have changed",
+        ERROR_MONTH_MISSING: "the month of the calendar is missing, the received data may have changed",
+        ERROR_WORKDAYS_MISSING: "the working days of the month are missing, the received data may have changed",
         ERROR_DATA_UNAVAILABLE: (status) => `cannot load the attendance data (HTTP ${status})`,
         ERROR_SESSION_EXPIRED: "the session has expired, reload the page",
         ERROR_SUMMARY_NOT_FOUND: "cannot find the month summary, the page layout may have changed",
         ERROR_PROGRESS_BAR_NOT_FOUND: "cannot find the progress bar, the page layout may have changed",
         ERROR_LOGGED_MONTH_NOT_FOUND: "cannot find the logged time of the month, the page layout may have changed",
         ERROR_MONTH_GOAL_NOT_FOUND: "cannot find the goal of the month, the page layout may have changed",
+
         WARNING_RUNNING_SESSION_NOT_FOUND: "cannot find the running session",
         WARNING_LOGGED_TODAY_NOT_FOUND: "cannot find the time logged today",
+        WARNING_CLOSURES_NOT_FOUND: "cannot find the school closures, the received data may have changed",
+        WARNING_INVALID_CLOSURES: "some school closures cannot be read, the received data may have changed",
+        WARNING_CAPSULES_NOT_FOUND: "cannot find the available capsules, the received data may have changed",
     },
 }
 
