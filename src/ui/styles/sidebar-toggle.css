@@ -1,0 +1,23 @@
+.improved-attendance-sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    background: var(--card);
+    color: var(--foreground);
+    cursor: pointer;
+}
+.improved-attendance-sidebar-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
+[data-slot="sidebar"].improved-attendance-sidebar-hidden [data-slot="sidebar-gap"] {
+    width: 0;
+}
+[data-slot="sidebar"].improved-attendance-sidebar-hidden [data-slot="sidebar-container"] {
+    left: calc(var(--sidebar-width) * -1);
+}
