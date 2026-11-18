@@ -1,16 +1,17 @@
-import { EXTENSION_NAME, WORKDAY_MINUTES } from "../constants"
+import { EXTENSION_NAME, MAX_DAILY_MINUTES, WORKDAY_MINUTES } from "../constants"
 import type { Labels } from "../labels"
 import { decodeDevalue } from "../lib/devalue"
-import { getDaysInMonth } from "../lib/time"
+import { getDayInTimeZone, getDaysInMonth, getTimeZoneOffsetMinutes } from "../lib/time"
 
 const CLOSURE_START_HOUR = 8
 const CLOSURE_END_HOUR = 20
+const SCHOOL_TIME_ZONE = "Europe/Paris"
 
 interface AttendanceCalendar {
     year: number
     /** The month, 0 for January. */
     monthIndex: number
-    /** The workdays of the month. */
+    /** The workdays of the month, at midnight. */
     workdays: Date[]
 }
 
@@ -23,7 +24,7 @@ interface AttendanceHistory {
     closures: AttendanceClosure[]
 }
 
-export type DayMark = "public-holiday" | "closure"
+export type DayMark = "public-holiday" | "closure" | "partial-closure"
 
 export class Attendance {
     calendar: AttendanceCalendar
@@ -37,43 +38,94 @@ export class Attendance {
      * @param labels - the labels in the language of the site
      */
     constructor(data: Record<string, any>, labels: Labels) {
-        const { calendar, history } = data
+        const { calendar, history, availableCapsules } = data
 
-        if (!Array.isArray(calendar?.workdays) || !calendar.workdays.every((day: unknown) => day instanceof Date)) {
+        if (!Number.isInteger(calendar?.year) || !Number.isInteger(calendar?.monthIndex)) {
+            throw new Error(`${EXTENSION_NAME}: ${labels.ERROR_MONTH_MISSING}`)
+        }
+        if (!Array.isArray(calendar.workdays) || !calendar.workdays.every((day: unknown) => day instanceof Date)) {
             throw new Error(`${EXTENSION_NAME}: ${labels.ERROR_WORKDAYS_MISSING}`)
+        }
+
+        if (!Array.isArray(history?.closures)) {
+            console.warn(`${EXTENSION_NAME}: ${labels.WARNING_CLOSURES_NOT_FOUND}`)
+        }
+        const closures: unknown[] = Array.isArray(history?.closures) ? history.closures : []
+        const validClosures = closures.filter((closure: any) => closure?.beginAt instanceof Date && closure?.endAt instanceof Date)
+        if (validClosures.length < closures.length) {
+            console.warn(`${EXTENSION_NAME}: ${labels.WARNING_INVALID_CLOSURES}`)
+        }
+
+        if (!Array.isArray(availableCapsules)) {
+            console.warn(`${EXTENSION_NAME}: ${labels.WARNING_CAPSULES_NOT_FOUND}`)
         }
 
         this.calendar = {
             year: calendar.year,
             monthIndex: calendar.monthIndex,
-            workdays: calendar.workdays,
+            workdays: calendar.workdays.map((workday: Date) => new Date(workday.getUTCFullYear(), workday.getUTCMonth(), workday.getUTCDate())),
         }
 
         this.history = {
-            closures: history?.closures ?? [],
+            closures: validClosures as AttendanceClosure[],
         }
 
-        this.availableCapsules = Array.isArray(data.availableCapsules) ? data.availableCapsules.length : 0
+        this.availableCapsules = Array.isArray(availableCapsules) ? availableCapsules.length : 0
     }
 
     /**
-     * Returns whether a closure covers the workday of `date`.
+     * Returns the timestamp at `hour` in the school time zone on the day of `date`.
      * @param date - a day of the month
+     * @param hour - the hour in the school time zone
      */
-    isClosedDay(date: Date): boolean {
-        const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), CLOSURE_START_HOUR)
-        const dayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate(), CLOSURE_END_HOUR)
+    private getSchoolTimestamp(date: Date, hour: number): number {
+        const utcTimestamp = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), hour)
+        const offsetMinutes = getTimeZoneOffsetMinutes(SCHOOL_TIME_ZONE, new Date(utcTimestamp))
+        return utcTimestamp - offsetMinutes * 60 * 1000
+    }
 
-        let closedMinutes = 0
-        for (const closure of this.history.closures) {
-            const start = closure.beginAt > dayStart ? closure.beginAt : dayStart
-            const end = closure.endAt < dayEnd ? closure.endAt : dayEnd
-            if (end > start) {
-                closedMinutes += (end.getTime() - start.getTime()) / (60 * 1000)
+    /**
+     * Returns the time covered by the closures between `startHour` and `endHour` on the day of `date`, in minutes.
+     * @param date - a day of the month
+     * @param startHour - the start hour in the school time zone
+     * @param endHour - the end hour in the school time zone
+     */
+    private getClosedMinutes(date: Date, startHour: number, endHour: number): number {
+        const dayStartTimestamp = this.getSchoolTimestamp(date, startHour)
+        const dayEndTimestamp = this.getSchoolTimestamp(date, endHour)
+
+        const intervals = this.history.closures
+            .map(({ beginAt, endAt }) => [Math.max(beginAt.getTime(), dayStartTimestamp), Math.min(endAt.getTime(), dayEndTimestamp)])
+            .filter(([startTimestamp, endTimestamp]) => endTimestamp > startTimestamp)
+            .sort((a, b) => a[0] - b[0])
+
+        let closedMilliseconds = 0
+        let coveredUntilTimestamp = dayStartTimestamp
+        for (const [startTimestamp, endTimestamp] of intervals) {
+            const fromTimestamp = Math.max(startTimestamp, coveredUntilTimestamp)
+            if (endTimestamp > fromTimestamp) {
+                closedMilliseconds += endTimestamp - fromTimestamp
+                coveredUntilTimestamp = endTimestamp
             }
         }
 
-        return closedMinutes >= WORKDAY_MINUTES
+        return closedMilliseconds / (60 * 1000)
+    }
+
+    /**
+     * Returns whether the closures cover the workday of `date`.
+     * @param date - a day of the month
+     */
+    isClosedDay(date: Date): boolean {
+        return this.getClosedMinutes(date, CLOSURE_START_HOUR, CLOSURE_END_HOUR) >= WORKDAY_MINUTES
+    }
+
+    /**
+     * Returns the time without closure on the day of `date`, in minutes.
+     * @param date - a day of the month
+     */
+    getOpenMinutes(date: Date): number {
+        return Math.max(0, MAX_DAILY_MINUTES - Math.ceil(this.getClosedMinutes(date, 0, 24)))
     }
 
     /**
@@ -104,6 +156,8 @@ export class Attendance {
                 dayMarks.set(day, "public-holiday")
             } else if (this.isWorkday(date) && this.isClosedDay(date)) {
                 dayMarks.set(day, "closure")
+            } else if (this.isWorkday(date) && this.getOpenMinutes(date) < MAX_DAILY_MINUTES) {
+                dayMarks.set(day, "partial-closure")
             }
         }
 
@@ -132,4 +186,9 @@ export class Attendance {
 
         return new Attendance(data, labels)
     }
+}
+
+/** Returns the current day in the school time zone. */
+export function getSchoolToday(): Date {
+    return getDayInTimeZone(SCHOOL_TIME_ZONE, new Date())
 }

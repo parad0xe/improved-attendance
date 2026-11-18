@@ -5,11 +5,14 @@ export interface Labels {
     SETTINGS_DAYS: string
     SETTINGS_DAYS_HELP: string
     SETTINGS_PACE: string
+    SETTINGS_PLANNED_DAYS: (count: number) => string
     SETTINGS_DAILY_TIME: string
     SETTINGS_RECOMMENDED: (time: string) => string
     SETTINGS_APPLY: string
     SETTINGS_APPLY_RECOMMENDED: string
     SETTINGS_CAPSULES_TO_USE: string
+
+    SIDEBAR_TOGGLE: string
 
     GAP_EXPECTED: (time: string) => string
     GAP_BONUS_DAYS: (days: number) => string
@@ -23,6 +26,7 @@ export interface Labels {
     CALENDAR_WEEKDAYS: string[]
     CALENDAR_PUBLIC_HOLIDAY: string
     CALENDAR_CLOSURE: string
+    CALENDAR_PARTIAL_CLOSURE: string
     CALENDAR_MANUAL: string
     CALENDAR_HINTS: { key: string, action: string }[]
     CALENDAR_DAY_DIALOG_CLOSE: string
@@ -30,7 +34,9 @@ export interface Labels {
     CALENDAR_DAY_DIALOG_PLANNED_TIME: string
     CALENDAR_DAY_DIALOG_MANUAL: string
     CALENDAR_DAY_DIALOG_DAILY_TIME: (time: string) => string
+    CALENDAR_DAY_DIALOG_MAX_TIME: (time: string) => string
 
+    ERROR_MONTH_MISSING: string
     ERROR_WORKDAYS_MISSING: string
     ERROR_DATA_UNAVAILABLE: (status: number) => string
     ERROR_SESSION_EXPIRED: string
@@ -38,8 +44,12 @@ export interface Labels {
     ERROR_PROGRESS_BAR_NOT_FOUND: string
     ERROR_LOGGED_MONTH_NOT_FOUND: string
     ERROR_MONTH_GOAL_NOT_FOUND: string
+
     WARNING_RUNNING_SESSION_NOT_FOUND: string
     WARNING_LOGGED_TODAY_NOT_FOUND: string
+    WARNING_CLOSURES_NOT_FOUND: string
+    WARNING_INVALID_CLOSURES: string
+    WARNING_CAPSULES_NOT_FOUND: string
 }
 
 const LABELS: Record<string, Labels> = {
@@ -48,11 +58,14 @@ const LABELS: Record<string, Labels> = {
         SETTINGS_DAYS: "Jours de repos",
         SETTINGS_DAYS_HELP: "Aide",
         SETTINGS_PACE: "Rythme",
+        SETTINGS_PLANNED_DAYS: (count) => `${count} ${count > 1 ? "jours planifiés" : "jour planifié"}`,
         SETTINGS_DAILY_TIME: "Temps par jour",
         SETTINGS_RECOMMENDED: (time) => `Recommandé: ${time}`,
         SETTINGS_APPLY: "Appliquer",
         SETTINGS_APPLY_RECOMMENDED: "Utiliser comme temps par jour",
         SETTINGS_CAPSULES_TO_USE: "Capsules à poser",
+
+        SIDEBAR_TOGGLE: "Afficher ou masquer la barre latérale",
 
         GAP_EXPECTED: (time) => `Prévu ${time}`,
         GAP_BONUS_DAYS: (days) => `${days.toFixed(1).replace(".", ",")} ${days < 2 ? "jour" : "jours"} bonus`,
@@ -65,6 +78,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_WEEKDAYS: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
         CALENDAR_PUBLIC_HOLIDAY: "Jour férié",
         CALENDAR_CLOSURE: "Fermeture de l'école",
+        CALENDAR_PARTIAL_CLOSURE: "Fermeture partielle",
         CALENDAR_MANUAL: "Temps personnalisé",
         CALENDAR_HINTS: [
             { key: "Clic gauche", action: "jour de repos" },
@@ -78,27 +92,36 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_DAY_DIALOG_PLANNED_TIME: "Temps prévu",
         CALENDAR_DAY_DIALOG_MANUAL: "Temps personnalisé",
         CALENDAR_DAY_DIALOG_DAILY_TIME: (time) => `Temps par jour: ${time}`,
+        CALENDAR_DAY_DIALOG_MAX_TIME: (time) => `Maximum: ${time}`,
 
-        ERROR_WORKDAYS_MISSING: "les jours ouvrés du mois sont introuvables, la page a peut-être changé",
+        ERROR_MONTH_MISSING: "le mois du calendrier est introuvable, les données reçues ont peut-être changé",
+        ERROR_WORKDAYS_MISSING: "les jours ouvrés du mois sont introuvables, les données reçues ont peut-être changé",
         ERROR_DATA_UNAVAILABLE: (status) => `impossible de charger les données d'attendance (HTTP ${status})`,
         ERROR_SESSION_EXPIRED: "la session a expiré, rechargez la page",
         ERROR_SUMMARY_NOT_FOUND: "impossible de trouver le résumé du mois, la mise en page a peut-être changé",
         ERROR_PROGRESS_BAR_NOT_FOUND: "impossible de trouver la barre de progression, la mise en page a peut-être changé",
         ERROR_LOGGED_MONTH_NOT_FOUND: "impossible de trouver le temps logué du mois, la mise en page a peut-être changé",
         ERROR_MONTH_GOAL_NOT_FOUND: "impossible de trouver l'objectif du mois, la mise en page a peut-être changé",
+
         WARNING_RUNNING_SESSION_NOT_FOUND: "impossible de trouver la session en cours",
         WARNING_LOGGED_TODAY_NOT_FOUND: "impossible de trouver le temps logué aujourd'hui",
+        WARNING_CLOSURES_NOT_FOUND: "impossible de trouver les fermetures de l'école, les données reçues ont peut-être changé",
+        WARNING_INVALID_CLOSURES: "certaines fermetures de l'école sont illisibles, les données reçues ont peut-être changé",
+        WARNING_CAPSULES_NOT_FOUND: "impossible de trouver les capsules disponibles, les données reçues ont peut-être changé",
     },
     en: {
         SETTINGS_THEME: "Theme",
         SETTINGS_DAYS: "Days off",
         SETTINGS_DAYS_HELP: "Help",
         SETTINGS_PACE: "Pace",
+        SETTINGS_PLANNED_DAYS: (count) => `${count} planned ${count === 1 ? "day" : "days"}`,
         SETTINGS_DAILY_TIME: "Time per day",
         SETTINGS_RECOMMENDED: (time) => `Recommended: ${time}`,
         SETTINGS_APPLY: "Apply",
         SETTINGS_APPLY_RECOMMENDED: "Use as time per day",
         SETTINGS_CAPSULES_TO_USE: "Capsules to use",
+
+        SIDEBAR_TOGGLE: "Show or hide the sidebar",
 
         GAP_EXPECTED: (time) => `Expected ${time}`,
         GAP_BONUS_DAYS: (days) => `${days.toFixed(1)} bonus ${days < 2 ? "day" : "days"}`,
@@ -111,6 +134,7 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_WEEKDAYS: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         CALENDAR_PUBLIC_HOLIDAY: "Public holiday",
         CALENDAR_CLOSURE: "School closure",
+        CALENDAR_PARTIAL_CLOSURE: "Partial closure",
         CALENDAR_MANUAL: "Custom time",
         CALENDAR_HINTS: [
             { key: "Left click", action: "day off" },
@@ -124,16 +148,22 @@ const LABELS: Record<string, Labels> = {
         CALENDAR_DAY_DIALOG_PLANNED_TIME: "Planned time",
         CALENDAR_DAY_DIALOG_MANUAL: "Custom time",
         CALENDAR_DAY_DIALOG_DAILY_TIME: (time) => `Time per day: ${time}`,
+        CALENDAR_DAY_DIALOG_MAX_TIME: (time) => `Maximum: ${time}`,
 
-        ERROR_WORKDAYS_MISSING: "the working days of the month are missing, the page may have changed",
+        ERROR_MONTH_MISSING: "the month of the calendar is missing, the received data may have changed",
+        ERROR_WORKDAYS_MISSING: "the working days of the month are missing, the received data may have changed",
         ERROR_DATA_UNAVAILABLE: (status) => `cannot load the attendance data (HTTP ${status})`,
         ERROR_SESSION_EXPIRED: "the session has expired, reload the page",
         ERROR_SUMMARY_NOT_FOUND: "cannot find the month summary, the page layout may have changed",
         ERROR_PROGRESS_BAR_NOT_FOUND: "cannot find the progress bar, the page layout may have changed",
         ERROR_LOGGED_MONTH_NOT_FOUND: "cannot find the logged time of the month, the page layout may have changed",
         ERROR_MONTH_GOAL_NOT_FOUND: "cannot find the goal of the month, the page layout may have changed",
+
         WARNING_RUNNING_SESSION_NOT_FOUND: "cannot find the running session",
         WARNING_LOGGED_TODAY_NOT_FOUND: "cannot find the time logged today",
+        WARNING_CLOSURES_NOT_FOUND: "cannot find the school closures, the received data may have changed",
+        WARNING_INVALID_CLOSURES: "some school closures cannot be read, the received data may have changed",
+        WARNING_CAPSULES_NOT_FOUND: "cannot find the available capsules, the received data may have changed",
     },
 }
 

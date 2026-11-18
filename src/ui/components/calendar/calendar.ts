@@ -147,9 +147,12 @@ class CalendarElement extends HTMLElement {
      */
     private getMarkLabel(mark: DayMark): string {
         const labels = getLabels(this.lang)
-        return mark === "public-holiday"
-            ? labels.CALENDAR_PUBLIC_HOLIDAY
-            : labels.CALENDAR_CLOSURE
+        const markLabels: Record<DayMark, string> = {
+            "public-holiday": labels.CALENDAR_PUBLIC_HOLIDAY,
+            "closure": labels.CALENDAR_CLOSURE,
+            "partial-closure": labels.CALENDAR_PARTIAL_CLOSURE,
+        }
+        return markLabels[mark]
     }
 
     /**
@@ -165,6 +168,7 @@ class CalendarElement extends HTMLElement {
 
         dayElement.classList.add("day")
         dayElement.classList.toggle("off", !plannedDay.hasPlannedTime() && !isPast)
+        dayElement.classList.toggle("today", plannedDay.isToday())
         dayElement.textContent = String(plannedDay.date.getDate())
 
         if (plannedDay.hasPlannedTime() && plannedDay.isManual && !isPast) {

@@ -3,11 +3,13 @@ import { Attendance } from "./models/attendance"
 import { MonthPlan, type MonthTime } from "./models/month-plan/month-plan"
 import PAGE_STYLE from "./ui/styles/page.css"
 import SETTINGS_STYLE from "./ui/styles/settings.css"
+import SIDEBAR_TOGGLE_STYLE from "./ui/styles/sidebar-toggle.css"
 import SITE_DARK_STYLE from "./ui/styles/site-dark.css"
 import THEME_STYLE from "./ui/styles/theme.css"
 import THEME_SWITCH_STYLE from "./ui/styles/theme-switch.css"
 import { Page } from "./ui/page"
 import { Settings } from "./ui/settings"
+import { SidebarToggle } from "./ui/sidebar-toggle"
 import { ThemeSwitch } from "./ui/theme-switch"
 
 const SELECTORS = {
@@ -68,6 +70,7 @@ async function startMonthImprovements({ settings, labels, isOutdated }: StartMon
 
     const renderMonth = (time: MonthTime) => {
         page.render(plan, time)
+        settings.setPlannedDays(plan)
         settings.setRecommendedDailyTime(plan, time)
     }
 
@@ -107,7 +110,7 @@ async function startMonthImprovements({ settings, labels, isOutdated }: StartMon
 
 function main(): void {
     const styleElement = document.createElement("style")
-    styleElement.textContent = PAGE_STYLE + SETTINGS_STYLE + THEME_SWITCH_STYLE + THEME_STYLE + SITE_DARK_STYLE
+    styleElement.textContent = PAGE_STYLE + SETTINGS_STYLE + THEME_SWITCH_STYLE + SIDEBAR_TOGGLE_STYLE + THEME_STYLE + SITE_DARK_STYLE
     document.head.append(styleElement)
 
     const lang = loadLang()
@@ -115,6 +118,8 @@ function main(): void {
 
     const themeSwitch = new ThemeSwitch(labels)
     themeSwitch.mount()
+
+    const sidebarToggle = new SidebarToggle(labels)
 
     const settings = new Settings({ lang, labels, themeSwitchElement: themeSwitch.rootElement })
     let isSettingsMounted = false
@@ -151,6 +156,8 @@ function main(): void {
     waitForHydration().then(() => {
         restartMonthImprovements()
         watchUrl(restartMonthImprovements)
+        // Mounted once the site is hydrated, as the button goes into its header.
+        sidebarToggle.mount()
     })
 }
 

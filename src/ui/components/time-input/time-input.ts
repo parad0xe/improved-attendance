@@ -7,6 +7,7 @@ export class TimeInputElement extends HTMLElement {
     #rootElement: HTMLElement | null
 
     #minutes: number | null
+    #maxMinutes: number
 
     #onChange: (minutes: number) => void
 
@@ -14,6 +15,7 @@ export class TimeInputElement extends HTMLElement {
         super()
         this.#rootElement = null
         this.#minutes = null
+        this.#maxMinutes = MAX_DAILY_MINUTES
         this.#onChange = () => {}
 
         this.#shadow = this.attachShadow({ mode: "open" })
@@ -36,9 +38,11 @@ export class TimeInputElement extends HTMLElement {
      * Renders `minutes`, and calls `onChange` after each change.
      * @param minutes - the time of the input
      * @param onChange - called with the new time
+     * @param maxMinutes - the longest time of the input
      */
-    render(minutes: number, onChange: (minutes: number) => void): void {
+    render(minutes: number, onChange: (minutes: number) => void, maxMinutes = MAX_DAILY_MINUTES): void {
         this.#minutes = minutes
+        this.#maxMinutes = maxMinutes
         this.#onChange = onChange
         this.draw()
     }
@@ -54,7 +58,7 @@ export class TimeInputElement extends HTMLElement {
         const hoursInputElement = document.createElement("input")
         hoursInputElement.type = "number"
         hoursInputElement.min = "0"
-        hoursInputElement.max = String(MAX_DAILY_MINUTES / 60)
+        hoursInputElement.max = String(Math.floor(this.#maxMinutes / 60))
         hoursInputElement.step = "1"
         this.#rootElement.append(hoursInputElement, "h")
 
@@ -77,7 +81,7 @@ export class TimeInputElement extends HTMLElement {
             const hours = hoursInputElement.valueAsNumber
             const minutes = minutesInputElement.valueAsNumber
             if (Number.isFinite(hours) && Number.isFinite(minutes)) {
-                this.#minutes = Math.min(Math.max(0, Math.round(hours * 60 + minutes)), MAX_DAILY_MINUTES)
+                this.#minutes = Math.min(Math.max(0, Math.round(hours * 60 + minutes)), this.#maxMinutes)
                 this.#onChange(this.#minutes)
             }
             renderTime()

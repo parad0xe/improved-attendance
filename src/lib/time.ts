@@ -25,3 +25,27 @@ export function formatMinutes(minutes: number): string {
 export function getDaysInMonth(year: number, monthIndex: number): number {
     return new Date(year, monthIndex + 1, 0).getDate()
 }
+
+/**
+ * Returns the offset of `timeZone` from UTC at `date`, in minutes.
+ * @param timeZone - the time zone, such as "Europe/Paris"
+ * @param date - the moment of the offset
+ */
+export function getTimeZoneOffsetMinutes(timeZone: string, date: Date): number {
+    const offset = new Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "longOffset" })
+        .formatToParts(date)
+        .find((part) => part.type === "timeZoneName")?.value ?? "GMT"
+    const [, sign, hours, minutes] = offset.match(/GMT([+-])(\d{2}):(\d{2})/) ?? ["", "+", "00", "00"]
+    return (sign === "-" ? -1 : 1) * (Number(hours) * 60 + Number(minutes))
+}
+
+/**
+ * Returns the day of `date` in `timeZone`, at midnight.
+ * @param timeZone - the time zone, such as "Europe/Paris"
+ * @param date - the moment of the day
+ */
+export function getDayInTimeZone(timeZone: string, date: Date): Date {
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone, year: "numeric", month: "numeric", day: "numeric" }).formatToParts(date)
+    const getPart = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((part) => part.type === type)?.value)
+    return new Date(getPart("year"), getPart("month") - 1, getPart("day"))
+}

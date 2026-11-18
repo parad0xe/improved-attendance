@@ -34,6 +34,10 @@
 .day.off:not(.past):hover {
     border-color: var(--improved-attendance-day-off-text);
 }
+.day.today {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
 .day.past {
     border-color: var(--improved-attendance-past-day-border);
     color: var(--improved-attendance-past-day-text);
@@ -56,6 +60,7 @@
 
 .day.public-holiday::after,
 .day.closure::after,
+.day.partial-closure::after,
 .legend-mark::before {
     content: "";
     display: block;
@@ -64,7 +69,8 @@
     border-radius: 10px;
 }
 .day.public-holiday::after,
-.day.closure::after {
+.day.closure::after,
+.day.partial-closure::after {
     position: absolute;
     top: 3px;
     left: calc(50% - 5px);
@@ -79,6 +85,10 @@
 .closure::after,
 .legend-mark.closure::before {
     background: var(--improved-attendance-closure);
+}
+.partial-closure::after,
+.legend-mark.partial-closure::before {
+    background: linear-gradient(to right, var(--improved-attendance-closure) 40%, transparent 40% 60%, var(--improved-attendance-closure) 60%);
 }
 
 .day-time {

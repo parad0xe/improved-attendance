@@ -38,6 +38,8 @@ export class Settings {
     private readonly themeSwitchElement: HTMLElement
     /** The input of the planned capsules. */
     private capsulesInputElement: HTMLInputElement | null
+    /** The number of days with planned time. */
+    private plannedDaysElement: HTMLElement | null
     /** The time to log on each planned day to reach the goal. */
     private recommendedDailyTimeElement: RecommendedDailyTimeElement | null
     /** The settings of the plan of the month. */
@@ -52,6 +54,7 @@ export class Settings {
 
         this.themeSwitchElement = themeSwitchElement
         this.capsulesInputElement = null
+        this.plannedDaysElement = null
         this.recommendedDailyTimeElement = null
         this.settingsContainerElement = null
 
@@ -90,6 +93,7 @@ export class Settings {
     render({ plan, attendance, onChange }: SettingsRenderOptions): void {
         this.settingsContainerElement?.remove()
         this.capsulesInputElement = null
+        this.plannedDaysElement = null
 
         const settingsContainerElement = document.createElement("div")
         settingsContainerElement.className = "improved-attendance-settings-container"
@@ -144,10 +148,22 @@ export class Settings {
         paceContainerElement.className = "improved-attendance-settings-pace-container"
         settingsContainerElement.append(paceContainerElement)
 
+        const paceHeaderElement = document.createElement("div")
+        paceHeaderElement.className = "improved-attendance-settings-row"
+        paceContainerElement.append(paceHeaderElement)
+
         const paceTitleElement = document.createElement("span")
         paceTitleElement.className = "improved-attendance-settings-title"
         paceTitleElement.textContent = this.labels.SETTINGS_PACE
-        paceContainerElement.append(paceTitleElement)
+        paceHeaderElement.append(paceTitleElement)
+
+        if (!plan.isPastMonth()) {
+            const plannedDaysElement = document.createElement("span")
+            plannedDaysElement.className = "improved-attendance-settings-hint"
+            this.plannedDaysElement = plannedDaysElement
+            this.setPlannedDays(plan)
+            paceHeaderElement.append(plannedDaysElement)
+        }
 
         const dailyTimeColumnElement = document.createElement("div")
         dailyTimeColumnElement.className = "improved-attendance-settings-column"
@@ -214,6 +230,15 @@ export class Settings {
         if (!this.capsulesInputElement) { return }
         this.capsulesInputElement.max = String(availableCapsules)
         this.capsulesInputElement.value = String(plan.capsules)
+    }
+
+    /**
+     * Renders the number of days with planned time of `plan`.
+     * @param plan - the plan of the month
+     */
+    setPlannedDays(plan: MonthPlan): void {
+        if (!this.plannedDaysElement) { return }
+        this.plannedDaysElement.textContent = this.labels.SETTINGS_PLANNED_DAYS(plan.countPlannedDaysFromToday())
     }
 
     /**
