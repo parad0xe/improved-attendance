@@ -150,9 +150,12 @@ export class Page {
         }
         expectedBarLabelElement.textContent = formatMinutes(expectedMinutes)
 
-        setTimeout(() => {
-            expectedBarElement.style.width = `${expectedMinutes / time.monthGoalMinutes * 100}%`
-        }, 30)
+        // The bar is drawn at its current width first, so that the change of width is animated.
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                expectedBarElement.style.width = `${expectedMinutes / time.monthGoalMinutes * 100}%`
+            })
+        })
     }
 
     /**
