@@ -1,7 +1,7 @@
 import { EXTENSION_NAME, WORKDAY_MINUTES } from "../constants"
 import type { Labels } from "../labels"
 import { decodeDevalue } from "../lib/devalue"
-import { getDaysInMonth, getTimeZoneOffsetMinutes } from "../lib/time"
+import { getDayInTimeZone, getDaysInMonth, getTimeZoneOffsetMinutes } from "../lib/time"
 
 const CLOSURE_START_HOUR = 8
 const CLOSURE_END_HOUR = 20
@@ -166,4 +166,9 @@ export class Attendance {
 
         return new Attendance(data, labels)
     }
+}
+
+/** Returns the current day in the school time zone. */
+export function getSchoolToday(): Date {
+    return getDayInTimeZone(SCHOOL_TIME_ZONE, new Date())
 }

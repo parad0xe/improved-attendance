@@ -1,6 +1,6 @@
 import { WORKDAY_MINUTES } from "../../constants"
 import { getDaysInMonth } from "../../lib/time"
-import type { Attendance } from "../attendance"
+import { getSchoolToday, type Attendance } from "../attendance"
 import { PlannedDay } from "./planned-day"
 
 const PLAN_STORAGE_KEY = "improved-attendance-plan"
@@ -157,7 +157,7 @@ export class MonthPlan {
      * Returns whether time is planned on the day of `now`.
      * @param now - the current date
      */
-    hasPlannedTime(now = new Date()): boolean {
+    hasPlannedTime(now = getSchoolToday()): boolean {
         return this.isCurrentMonth(now) && this.getPlannedDay(now.getDate())?.hasPlannedTime() === true
     }
 
@@ -173,7 +173,7 @@ export class MonthPlan {
      * Returns the time planned after `now`.
      * @param now - the current date
      */
-    getRemainingPlannedMinutes(now = new Date()): number {
+    getRemainingPlannedMinutes(now = getSchoolToday()): number {
         return this.getRemainingDays(now).reduce((minutes, plannedDay) => minutes + plannedDay.plannedMinutes, 0)
     }
 
@@ -181,7 +181,7 @@ export class MonthPlan {
      * Returns whether the plan is for the month of `now`.
      * @param now - the current date
      */
-    isCurrentMonth(now = new Date()): boolean {
+    isCurrentMonth(now = getSchoolToday()): boolean {
         return this.year === now.getFullYear() && this.monthIndex === now.getMonth()
     }
 
@@ -190,7 +190,7 @@ export class MonthPlan {
      * @param monthGoalMinutes - the time to log in the month
      * @param now - the current date
      */
-    getExpectedRange(monthGoalMinutes: number, now = new Date()): { start: number, end: number } {
+    getExpectedRange(monthGoalMinutes: number, now = getSchoolToday()): { start: number, end: number } {
         const end = this.getGoalMinutes(monthGoalMinutes, now) - this.getRemainingPlannedMinutes(now)
         const start = this.hasPlannedTime(now) ? end - (this.getPlannedDay(now.getDate())?.plannedMinutes ?? 0) : end
         return { start, end }
@@ -201,7 +201,7 @@ export class MonthPlan {
      * @param time - the times of the month
      * @param now - the current date
      */
-    getRecommendedDailyMinutes(time: MonthTime, now = new Date()): number | null {
+    getRecommendedDailyMinutes(time: MonthTime, now = getSchoolToday()): number | null {
         const goalMinutes = this.getGoalMinutes(time.monthGoalMinutes, now)
         const loggedMinutes = time.loggedMonthMinutes + time.runningSessionMinutes
         const remainingDays = this.getRemainingDays(now)
@@ -229,7 +229,7 @@ export class MonthPlan {
      * @param monthGoalMinutes - the time to log in the month
      * @param now - the current date
      */
-    getExpectedMinutes(monthGoalMinutes: number, now = new Date()): number {
+    getExpectedMinutes(monthGoalMinutes: number, now = getSchoolToday()): number {
         return this.getExpectedRange(monthGoalMinutes, now).end
     }
 
@@ -238,7 +238,7 @@ export class MonthPlan {
      * @param monthGoalMinutes - the time to log in the month
      * @param now - the current date
      */
-    getGoalMinutes(monthGoalMinutes: number, now = new Date()): number {
+    getGoalMinutes(monthGoalMinutes: number, now = getSchoolToday()): number {
         if (!this.isCurrentMonth(now)) { return monthGoalMinutes }
         return monthGoalMinutes - this.capsules * WORKDAY_MINUTES
     }
@@ -248,7 +248,7 @@ export class MonthPlan {
      * @param time - the times of the month
      * @param now - the current date
      */
-    getRemainingTodayMinutes(time: MonthTime, now = new Date()): number {
+    getRemainingTodayMinutes(time: MonthTime, now = getSchoolToday()): number {
         if (!this.hasPlannedTime(now)) { return 0 }
         return Math.max(0, (this.getPlannedDay(now.getDate())?.plannedMinutes ?? 0) - time.loggedTodayMinutes)
     }
@@ -258,7 +258,7 @@ export class MonthPlan {
      * @param time - the times of the month
      * @param now - the current date
      */
-    getProjectedMinutes(time: MonthTime, now = new Date()): number {
+    getProjectedMinutes(time: MonthTime, now = getSchoolToday()): number {
         const loggedTotalMinutes = time.loggedMonthMinutes + time.runningSessionMinutes
         return loggedTotalMinutes + this.getRemainingTodayMinutes(time, now) + this.getRemainingPlannedMinutes(now)
     }

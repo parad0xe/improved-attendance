@@ -1,4 +1,4 @@
-import type { DayMark } from "../attendance"
+import { getSchoolToday, type DayMark } from "../attendance"
 
 interface PlannedDayOptions {
     /** The date of the day, at midnight. */
@@ -39,7 +39,7 @@ export class PlannedDay {
      * Returns whether the day is before the day of `now`.
      * @param now - the current date
      */
-    isPast(now = new Date()): boolean {
+    isPast(now = getSchoolToday()): boolean {
         return this.date < new Date(now.getFullYear(), now.getMonth(), now.getDate())
     }
 
@@ -47,7 +47,7 @@ export class PlannedDay {
      * Returns whether the day is the day of `now`.
      * @param now - the current date
      */
-    isToday(now = new Date()): boolean {
+    isToday(now = getSchoolToday()): boolean {
         return this.date.toDateString() === now.toDateString()
     }
 }
