@@ -154,10 +154,10 @@ function main(): void {
     })
 
     waitForHydration().then(() => {
-        // Mounted once the site is hydrated, as the button goes into its header.
-        sidebarToggle.mount()
         restartMonthImprovements()
         watchUrl(restartMonthImprovements)
+        // Mounted once the site is hydrated, as the button goes into its header.
+        sidebarToggle.mount()
     })
 }
 
