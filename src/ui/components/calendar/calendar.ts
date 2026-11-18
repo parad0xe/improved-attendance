@@ -165,6 +165,7 @@ class CalendarElement extends HTMLElement {
 
         dayElement.classList.add("day")
         dayElement.classList.toggle("off", !plannedDay.hasPlannedTime() && !isPast)
+        dayElement.classList.toggle("today", plannedDay.isToday())
         dayElement.textContent = String(plannedDay.date.getDate())
 
         if (plannedDay.hasPlannedTime() && plannedDay.isManual && !isPast) {

@@ -34,6 +34,10 @@
 .day.off:not(.past):hover {
     border-color: var(--improved-attendance-day-off-text);
 }
+.day.today {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
 .day.past {
     border-color: var(--improved-attendance-past-day-border);
     color: var(--improved-attendance-past-day-text);

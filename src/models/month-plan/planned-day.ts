@@ -42,4 +42,12 @@ export class PlannedDay {
     isPast(now = new Date()): boolean {
         return this.date < new Date(now.getFullYear(), now.getMonth(), now.getDate())
     }
+
+    /**
+     * Returns whether the day is the day of `now`.
+     * @param now - the current date
+     */
+    isToday(now = new Date()): boolean {
+        return this.date.toDateString() === now.toDateString()
+    }
 }
