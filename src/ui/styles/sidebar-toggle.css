@@ -15,9 +15,17 @@
     height: 20px;
 }
 
-[data-slot="sidebar"].improved-attendance-sidebar-hidden [data-slot="sidebar-gap"] {
+.improved-attendance-sidebar-hidden [data-slot="sidebar"] [data-slot="sidebar-gap"] {
     width: 0;
 }
-[data-slot="sidebar"].improved-attendance-sidebar-hidden [data-slot="sidebar-container"] {
+.improved-attendance-sidebar-hidden [data-slot="sidebar"] [data-slot="sidebar-container"] {
     left: calc(var(--sidebar-width) * -1);
+}
+.improved-attendance-sidebar-instant [data-slot="sidebar"] [data-slot="sidebar-gap"],
+.improved-attendance-sidebar-instant [data-slot="sidebar"] [data-slot="sidebar-container"] {
+    transition: none;
+}
+
+.improved-attendance-unlocked::before {
+    content: "N";
 }
