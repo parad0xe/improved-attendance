@@ -5,7 +5,7 @@ const UNLOCK_CLICKS = 5
 const LOCK_CLICKS = 10
 
 const SELECTORS = {
-    sidebar: "[data-slot='sidebar']",
+    sidebar: "[data-slot='sidebar']:not([data-mobile])",
     headerButtons: "[data-slot='sidebar-inset'] main > div > div",
     headerTitle: "[data-slot='sidebar-header'] h1 span",
     headerVersion: "[data-slot='sidebar-header'] h1 + div",
