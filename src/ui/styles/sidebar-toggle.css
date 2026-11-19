@@ -14,6 +14,11 @@
     width: 20px;
     height: 20px;
 }
+@media (width < 48rem) {
+    .improved-attendance-sidebar-toggle {
+        display: none;
+    }
+}
 
 [data-slot="sidebar"] [data-slot="sidebar-gap"],
 [data-slot="sidebar"] [data-slot="sidebar-container"] {
