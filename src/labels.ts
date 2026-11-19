@@ -18,6 +18,7 @@ export interface Labels {
     GAP_BONUS_DAYS: (days: number) => string
     GAP_MISSING_DAYS: (days: number) => string
     GAP_REMAINING_TODAY: string
+    GAP_END_TODAY: (time: string) => string
     GAP_MONTH_END: string
     GAP_CAPSULES_LEFT: (count: number) => string
     GAP_UNAVAILABLE: string
@@ -49,6 +50,8 @@ export interface Labels {
     WARNING_LOGGED_TODAY_NOT_FOUND: string
     WARNING_CLOSURES_NOT_FOUND: string
     WARNING_INVALID_CLOSURES: string
+    WARNING_PRESENCES_NOT_FOUND: string
+    WARNING_INVALID_PRESENCES: string
     WARNING_CAPSULES_NOT_FOUND: string
 }
 
@@ -71,6 +74,7 @@ const LABELS: Record<string, Labels> = {
         GAP_BONUS_DAYS: (days) => `${days.toFixed(1).replace(".", ",")} ${days < 2 ? "jour" : "jours"} bonus`,
         GAP_MISSING_DAYS: (days) => `${days.toFixed(1).replace(".", ",")} ${days < 2 ? "jour manquant" : "jours manquants"}`,
         GAP_REMAINING_TODAY: "restant aujourd'hui",
+        GAP_END_TODAY: (time) => `fin à ${time}`,
         GAP_MONTH_END: "fin du mois",
         GAP_CAPSULES_LEFT: (count) => `${count} ${count > 1 ? "capsules" : "capsule"} à poser`,
         GAP_UNAVAILABLE: "écart indisponible",
@@ -107,6 +111,8 @@ const LABELS: Record<string, Labels> = {
         WARNING_LOGGED_TODAY_NOT_FOUND: "impossible de trouver le temps logué aujourd'hui",
         WARNING_CLOSURES_NOT_FOUND: "impossible de trouver les fermetures de l'école, les données reçues ont peut-être changé",
         WARNING_INVALID_CLOSURES: "certaines fermetures de l'école sont illisibles, les données reçues ont peut-être changé",
+        WARNING_PRESENCES_NOT_FOUND: "impossible de trouver les présences, les données reçues ont peut-être changé",
+        WARNING_INVALID_PRESENCES: "certaines présences sont illisibles, les données reçues ont peut-être changé",
         WARNING_CAPSULES_NOT_FOUND: "impossible de trouver les capsules disponibles, les données reçues ont peut-être changé",
     },
     en: {
@@ -127,6 +133,7 @@ const LABELS: Record<string, Labels> = {
         GAP_BONUS_DAYS: (days) => `${days.toFixed(1)} bonus ${days < 2 ? "day" : "days"}`,
         GAP_MISSING_DAYS: (days) => `${days.toFixed(1)} missing ${days < 2 ? "day" : "days"}`,
         GAP_REMAINING_TODAY: "remaining today",
+        GAP_END_TODAY: (time) => `ends at ${time}`,
         GAP_MONTH_END: "month end",
         GAP_CAPSULES_LEFT: (count) => `${count} ${count > 1 ? "capsules" : "capsule"} to use`,
         GAP_UNAVAILABLE: "gap unavailable",
@@ -163,6 +170,8 @@ const LABELS: Record<string, Labels> = {
         WARNING_LOGGED_TODAY_NOT_FOUND: "cannot find the time logged today",
         WARNING_CLOSURES_NOT_FOUND: "cannot find the school closures, the received data may have changed",
         WARNING_INVALID_CLOSURES: "some school closures cannot be read, the received data may have changed",
+        WARNING_PRESENCES_NOT_FOUND: "cannot find the presences, the received data may have changed",
+        WARNING_INVALID_PRESENCES: "some presences cannot be read, the received data may have changed",
         WARNING_CAPSULES_NOT_FOUND: "cannot find the available capsules, the received data may have changed",
     },
 }

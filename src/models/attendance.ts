@@ -20,8 +20,14 @@ interface AttendanceClosure {
     endAt: Date
 }
 
+interface AttendancePresence {
+    beginAt: Date
+    endAt: Date | null
+}
+
 interface AttendanceHistory {
     closures: AttendanceClosure[]
+    presences: AttendancePresence[]
 }
 
 export type DayMark = "public-holiday" | "closure" | "partial-closure"
@@ -56,6 +62,16 @@ export class Attendance {
             console.warn(`${EXTENSION_NAME}: ${labels.WARNING_INVALID_CLOSURES}`)
         }
 
+        if (!Array.isArray(history?.presences)) {
+            console.warn(`${EXTENSION_NAME}: ${labels.WARNING_PRESENCES_NOT_FOUND}`)
+        }
+        const presences: unknown[] = Array.isArray(history?.presences) ? history.presences : []
+        const validPresences = presences.filter((presence: any) => presence?.beginAt instanceof Date && (presence?.endAt instanceof Date || presence?.endAt === null))
+            .sort((a: any, b: any) => (a?.beginAt - b?.beginAt))
+        if (validPresences.length < presences.length) {
+            console.warn(`${EXTENSION_NAME}: ${labels.WARNING_INVALID_PRESENCES}`)
+        }
+
         if (!Array.isArray(availableCapsules)) {
             console.warn(`${EXTENSION_NAME}: ${labels.WARNING_CAPSULES_NOT_FOUND}`)
         }
@@ -68,6 +84,7 @@ export class Attendance {
 
         this.history = {
             closures: validClosures as AttendanceClosure[],
+            presences: validPresences as AttendancePresence[],
         }
 
         this.availableCapsules = Array.isArray(availableCapsules) ? availableCapsules.length : 0
@@ -162,6 +179,30 @@ export class Attendance {
         }
 
         return dayMarks
+    }
+
+    /** Returns the presences that began today. */
+    private getTodayPresences(): AttendancePresence[] {
+        const today = getSchoolToday().getTime()
+        return this.history.presences.filter(({ beginAt }) => getDayInTimeZone(SCHOOL_TIME_ZONE, beginAt).getTime() === today)
+    }
+
+    /** Returns whether a presence of today is running. */
+    hasRunningPresence(): boolean {
+        return this.getTodayPresences().some(({ endAt }) => endAt === null)
+    }
+
+    /**
+     * Returns the moment the logged time of today reaches `plannedMinutes`, or null without a running presence.
+     * @param plannedMinutes - the time planned today
+     */
+    getEndTodayTimestamp(plannedMinutes: number): number | null {
+        const todayPresences = this.getTodayPresences()
+        const runningPresence = todayPresences.find(({ endAt }) => endAt === null)
+        if (!runningPresence) { return null }
+
+        const completedMilliseconds = todayPresences.reduce((milliseconds, { beginAt, endAt }) => endAt ? milliseconds + endAt.getTime() - beginAt.getTime() : milliseconds, 0)
+        return runningPresence.beginAt.getTime() + plannedMinutes * 60 * 1000 - completedMilliseconds
     }
 
     /**

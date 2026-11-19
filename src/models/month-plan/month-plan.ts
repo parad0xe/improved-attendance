@@ -49,6 +49,8 @@ export interface MonthTime {
     runningSessionMinutes: number
     /** The time logged today, with the running session. */
     loggedTodayMinutes: number
+    /** Whether a session is running. */
+    isSessionRunning: boolean
 }
 
 /** The plan of a month. */

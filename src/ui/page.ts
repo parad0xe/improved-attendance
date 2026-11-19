@@ -1,6 +1,7 @@
 import { EXTENSION_NAME } from "../constants"
 import type { Labels } from "../labels"
 import { formatMinutes, parseMinutes } from "../lib/time"
+import { getSchoolToday, type Attendance } from "../models/attendance"
 import type { MonthPlan, MonthTime } from "../models/month-plan/month-plan"
 
 const SELECTORS = {
@@ -36,6 +37,7 @@ function isSameTime(a: MonthTime, b: MonthTime): boolean {
         && a.monthGoalMinutes === b.monthGoalMinutes
         && a.runningSessionMinutes === b.runningSessionMinutes
         && a.loggedTodayMinutes === b.loggedTodayMinutes
+        && a.isSessionRunning === b.isSessionRunning
 }
 
 /** Reads the times of the month, and renders the gap and the expected bar. */
@@ -107,6 +109,7 @@ export class Page {
             monthGoalMinutes: parseMinutes(monthGoalText),
             runningSessionMinutes: parseMinutes(runningSessionText.replace("+", "").trim()),
             loggedTodayMinutes: parseMinutes(loggedTodayText.trim()),
+            isSessionRunning: isTimerStarted,
         }
     }
 
@@ -114,10 +117,11 @@ export class Page {
      * Renders the expected bar and the gap.
      * @param plan - the plan of the month
      * @param time - the times of the month
+     * @param attendance - the attendance of the month
      */
-    render(plan: MonthPlan, time: MonthTime): void {
+    render(plan: MonthPlan, time: MonthTime, attendance: Attendance): void {
         this.renderExpectedBar(plan, time)
-        this.renderGap(plan, time)
+        this.renderGap(plan, time, attendance)
     }
 
     /**
@@ -162,8 +166,9 @@ export class Page {
      * Renders the gap.
      * @param plan - the plan of the month
      * @param time - the times of the month
+     * @param attendance - the attendance of the month
      */
-    private renderGap(plan: MonthPlan, time: MonthTime): void {
+    private renderGap(plan: MonthPlan, time: MonthTime, attendance: Attendance): void {
         this.summaryElement.querySelector(".improved-attendance-gap-container")?.remove()
 
         if (time.loggedMonthMinutes >= plan.getGoalMinutes(time.monthGoalMinutes)) { return }
@@ -223,6 +228,19 @@ export class Page {
             gapRemainingTodayLabelElement.classList.add("improved-attendance-gap-label", "improved-attendance-in-progress")
             gapRemainingTodayLabelElement.textContent = this.labels.GAP_REMAINING_TODAY
             gapRemainingTodayContainerElement.append(gapRemainingTodayLabelElement)
+
+            const plannedTodayMinutes = plan.getPlannedDay(getSchoolToday().getDate())?.plannedMinutes ?? 0
+            const endTodayTimestamp = attendance.getEndTodayTimestamp(plannedTodayMinutes)
+            if (endTodayTimestamp !== null) {
+                const endTodayDate = new Date(endTodayTimestamp)
+                const endTodayTime = formatMinutes(endTodayDate.getHours() * 60 + endTodayDate.getMinutes())
+                const gapRemainingTodayEndElement = document.createElement("span")
+                gapRemainingTodayEndElement.classList.add("improved-attendance-gap-label", "improved-attendance-gap-end-today")
+                gapRemainingTodayEndElement.title = this.labels.GAP_END_TODAY(endTodayTime)
+                gapRemainingTodayEndElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`
+                gapRemainingTodayEndElement.append(endTodayTime)
+                gapRemainingTodayContainerElement.append(gapRemainingTodayEndElement)
+            }
         }
 
         if (plan.isCurrentMonth()) {
