@@ -15,6 +15,17 @@ const SELECTORS = {
     loggedToday: "[data-slot='sidebar-inset'] main div.mt-8 div:nth-of-type(2) > div > div div > span:last-of-type",
 }
 
+interface PageRenderOptions {
+    /** The plan of the month. */
+    plan: MonthPlan
+    /** The times of the month. */
+    time: MonthTime
+    /** The attendance of the month. */
+    attendance: Attendance
+    /** Whether the end of the planned time of today is shown. */
+    isEndTodayShown: boolean
+}
+
 /**
  * Returns the text of the element at `selector`, and whether it exists.
  * @param selector - the selector of an element that shows a time
@@ -113,15 +124,10 @@ export class Page {
         }
     }
 
-    /**
-     * Renders the expected bar and the gap.
-     * @param plan - the plan of the month
-     * @param time - the times of the month
-     * @param attendance - the attendance of the month
-     */
-    render(plan: MonthPlan, time: MonthTime, attendance: Attendance): void {
-        this.renderExpectedBar(plan, time)
-        this.renderGap(plan, time, attendance)
+    /** Renders the expected bar and the gap. */
+    render(options: PageRenderOptions): void {
+        this.renderExpectedBar(options.plan, options.time)
+        this.renderGap(options)
     }
 
     /**
@@ -162,13 +168,8 @@ export class Page {
         })
     }
 
-    /**
-     * Renders the gap.
-     * @param plan - the plan of the month
-     * @param time - the times of the month
-     * @param attendance - the attendance of the month
-     */
-    private renderGap(plan: MonthPlan, time: MonthTime, attendance: Attendance): void {
+    /** Renders the gap. */
+    private renderGap({ plan, time, attendance, isEndTodayShown }: PageRenderOptions): void {
         this.summaryElement.querySelector(".improved-attendance-gap-container")?.remove()
 
         if (time.loggedMonthMinutes >= plan.getGoalMinutes(time.monthGoalMinutes)) { return }
@@ -230,7 +231,7 @@ export class Page {
             gapRemainingTodayContainerElement.append(gapRemainingTodayLabelElement)
 
             const plannedTodayMinutes = plan.getPlannedDay(getSchoolToday().getDate())?.plannedMinutes ?? 0
-            const endTodayTimestamp = attendance.getEndTodayTimestamp(plannedTodayMinutes)
+            const endTodayTimestamp = isEndTodayShown ? attendance.getEndTodayTimestamp(plannedTodayMinutes) : null
             if (endTodayTimestamp !== null) {
                 const endTodayDate = new Date(endTodayTimestamp)
                 const endTodayTime = formatMinutes(endTodayDate.getHours() * 60 + endTodayDate.getMinutes())

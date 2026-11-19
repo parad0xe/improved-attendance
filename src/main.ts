@@ -1,3 +1,4 @@
+import { EXTENSION_NAME } from "./constants"
 import { getLabels, loadLang, type Labels } from "./labels"
 import { Attendance } from "./models/attendance"
 import { MonthPlan, type MonthTime } from "./models/month-plan/month-plan"
@@ -11,6 +12,9 @@ import { Page } from "./ui/page"
 import { Settings } from "./ui/settings"
 import { SidebarToggle } from "./ui/sidebar-toggle"
 import { ThemeSwitch } from "./ui/theme-switch"
+
+const PRESENCE_FETCH_INTERVAL_MINUTES = 1
+const PRESENCE_FETCH_LIMIT = 3
 
 const SELECTORS = {
     routeAnnouncer: "#svelte-announcer",
@@ -63,13 +67,15 @@ function waitForHydration(): Promise<void> {
 async function startMonthImprovements({ settings, labels, isOutdated }: StartMonthImprovementsOptions): Promise<() => void> {
     let attendance = await Attendance.fetch(labels)
     if (isOutdated()) { return () => {} }
+    let presenceFetchCount = 0
+    let presenceFetchTimestamp = 0
 
     const plan = MonthPlan.load(attendance)
     const page = new Page(labels)
     page.mount()
 
     const renderMonth = (time: MonthTime) => {
-        page.render(plan, time, attendance)
+        page.render({ plan, time, attendance, isEndTodayShown: presenceFetchCount < PRESENCE_FETCH_LIMIT })
         settings.setPlannedDays(plan)
         settings.setRecommendedDailyTime(plan, time)
     }
@@ -95,10 +101,22 @@ async function startMonthImprovements({ settings, labels, isOutdated }: StartMon
 
     return page.watch(async (time) => {
         const isPresenceOutdated = time.isSessionRunning !== attendance.hasRunningPresence()
+        const isPresenceFetchNeeded = isPresenceOutdated && presenceFetchCount < PRESENCE_FETCH_LIMIT
+            && Date.now() - presenceFetchTimestamp >= PRESENCE_FETCH_INTERVAL_MINUTES * 60 * 1000
         const isGoalChanged = plan.isCurrentMonth() && time.monthGoalMinutes !== plan.lastSync?.monthGoalMinutes
 
-        if (isPresenceOutdated || isGoalChanged) {
+        if (isPresenceFetchNeeded) {
+            presenceFetchCount++
+            presenceFetchTimestamp = Date.now()
+        }
+        if (isPresenceFetchNeeded || isGoalChanged) {
             attendance = await Attendance.fetch(labels)
+        }
+
+        if (time.isSessionRunning === attendance.hasRunningPresence()) {
+            presenceFetchCount = 0
+        } else if (isPresenceFetchNeeded && presenceFetchCount === PRESENCE_FETCH_LIMIT) {
+            console.warn(`${EXTENSION_NAME}: ${labels.WARNING_PRESENCES_OUTDATED}`)
         }
 
         if (isGoalChanged) {

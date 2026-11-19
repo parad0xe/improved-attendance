@@ -52,6 +52,7 @@ export interface Labels {
     WARNING_INVALID_CLOSURES: string
     WARNING_PRESENCES_NOT_FOUND: string
     WARNING_INVALID_PRESENCES: string
+    WARNING_PRESENCES_OUTDATED: string
     WARNING_CAPSULES_NOT_FOUND: string
 }
 
@@ -113,6 +114,7 @@ const LABELS: Record<string, Labels> = {
         WARNING_INVALID_CLOSURES: "certaines fermetures de l'école sont illisibles, les données reçues ont peut-être changé",
         WARNING_PRESENCES_NOT_FOUND: "impossible de trouver les présences, les données reçues ont peut-être changé",
         WARNING_INVALID_PRESENCES: "certaines présences sont illisibles, les données reçues ont peut-être changé",
+        WARNING_PRESENCES_OUTDATED: "les présences ne correspondent pas à la session en cours, les données reçues ont peut-être changé",
         WARNING_CAPSULES_NOT_FOUND: "impossible de trouver les capsules disponibles, les données reçues ont peut-être changé",
     },
     en: {
@@ -172,6 +174,7 @@ const LABELS: Record<string, Labels> = {
         WARNING_INVALID_CLOSURES: "some school closures cannot be read, the received data may have changed",
         WARNING_PRESENCES_NOT_FOUND: "cannot find the presences, the received data may have changed",
         WARNING_INVALID_PRESENCES: "some presences cannot be read, the received data may have changed",
+        WARNING_PRESENCES_OUTDATED: "the presences do not match the running session, the received data may have changed",
         WARNING_CAPSULES_NOT_FOUND: "cannot find the available capsules, the received data may have changed",
     },
 }
