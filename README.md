@@ -45,9 +45,10 @@ Improves the [42 Lyon attendance page](https://attendance.42lyon.fr/me) with too
 ### Follow your progress
 
 - See how far ahead or behind you are today
-- See the time left today
+- See the time left today, and when your planned time of today ends
 - See how you will end the month if you follow your plan
 - See the time recommended on each planned day to reach the goal
+- See the number of planned days left
 - See the time expected by today on the progress bar
 
 ---

@@ -1,6 +1,7 @@
 import { EXTENSION_NAME } from "../constants"
 import type { Labels } from "../labels"
 import { formatMinutes, parseMinutes } from "../lib/time"
+import { getSchoolToday, type Attendance } from "../models/attendance"
 import type { MonthPlan, MonthTime } from "../models/month-plan/month-plan"
 
 const SELECTORS = {
@@ -12,6 +13,17 @@ const SELECTORS = {
     timerParts: "[data-slot='sidebar-inset'] main div.mt-8 div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div > span",
     runningSession: "[data-slot='sidebar-inset'] main div.mt-8 div:nth-of-type(2) > div > div div > span:nth-of-type(1)",
     loggedToday: "[data-slot='sidebar-inset'] main div.mt-8 div:nth-of-type(2) > div > div div > span:last-of-type",
+}
+
+interface PageRenderOptions {
+    /** The plan of the month. */
+    plan: MonthPlan
+    /** The times of the month. */
+    time: MonthTime
+    /** The attendance of the month. */
+    attendance: Attendance
+    /** Whether the end of the planned time of today is shown. */
+    isEndTodayShown: boolean
 }
 
 /**
@@ -36,6 +48,7 @@ function isSameTime(a: MonthTime, b: MonthTime): boolean {
         && a.monthGoalMinutes === b.monthGoalMinutes
         && a.runningSessionMinutes === b.runningSessionMinutes
         && a.loggedTodayMinutes === b.loggedTodayMinutes
+        && a.isSessionRunning === b.isSessionRunning
 }
 
 /** Reads the times of the month, and renders the gap and the expected bar. */
@@ -107,17 +120,14 @@ export class Page {
             monthGoalMinutes: parseMinutes(monthGoalText),
             runningSessionMinutes: parseMinutes(runningSessionText.replace("+", "").trim()),
             loggedTodayMinutes: parseMinutes(loggedTodayText.trim()),
+            isSessionRunning: isTimerStarted,
         }
     }
 
-    /**
-     * Renders the expected bar and the gap.
-     * @param plan - the plan of the month
-     * @param time - the times of the month
-     */
-    render(plan: MonthPlan, time: MonthTime): void {
-        this.renderExpectedBar(plan, time)
-        this.renderGap(plan, time)
+    /** Renders the expected bar and the gap. */
+    render(options: PageRenderOptions): void {
+        this.renderExpectedBar(options.plan, options.time)
+        this.renderGap(options)
     }
 
     /**
@@ -158,12 +168,8 @@ export class Page {
         })
     }
 
-    /**
-     * Renders the gap.
-     * @param plan - the plan of the month
-     * @param time - the times of the month
-     */
-    private renderGap(plan: MonthPlan, time: MonthTime): void {
+    /** Renders the gap. */
+    private renderGap({ plan, time, attendance, isEndTodayShown }: PageRenderOptions): void {
         this.summaryElement.querySelector(".improved-attendance-gap-container")?.remove()
 
         if (time.loggedMonthMinutes >= plan.getGoalMinutes(time.monthGoalMinutes)) { return }
@@ -223,6 +229,19 @@ export class Page {
             gapRemainingTodayLabelElement.classList.add("improved-attendance-gap-label", "improved-attendance-in-progress")
             gapRemainingTodayLabelElement.textContent = this.labels.GAP_REMAINING_TODAY
             gapRemainingTodayContainerElement.append(gapRemainingTodayLabelElement)
+
+            const plannedTodayMinutes = plan.getPlannedDay(getSchoolToday().getDate())?.plannedMinutes ?? 0
+            const endTodayTimestamp = isEndTodayShown ? attendance.getEndTodayTimestamp(plannedTodayMinutes) : null
+            if (endTodayTimestamp !== null) {
+                const endTodayDate = new Date(endTodayTimestamp)
+                const endTodayTime = formatMinutes(endTodayDate.getHours() * 60 + endTodayDate.getMinutes())
+                const gapRemainingTodayEndElement = document.createElement("span")
+                gapRemainingTodayEndElement.classList.add("improved-attendance-gap-label", "improved-attendance-gap-end-today")
+                gapRemainingTodayEndElement.title = this.labels.GAP_END_TODAY(endTodayTime)
+                gapRemainingTodayEndElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`
+                gapRemainingTodayEndElement.append(endTodayTime)
+                gapRemainingTodayContainerElement.append(gapRemainingTodayEndElement)
+            }
         }
 
         if (plan.isCurrentMonth()) {

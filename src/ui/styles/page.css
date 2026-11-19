@@ -32,6 +32,13 @@
     font-size: 0.8rem;
     color: var(--muted-foreground);
 }
+.improved-attendance-gap-end-today svg {
+    width: 0.8rem;
+    height: 0.8rem;
+    margin-right: 0.2rem;
+    vertical-align: -0.1rem;
+    display: inline-block;
+}
 
 .improved-attendance-expected-bar {
     position: absolute;
