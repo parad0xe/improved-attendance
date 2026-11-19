@@ -15,6 +15,10 @@
     height: 20px;
 }
 
+[data-slot="sidebar"] [data-slot="sidebar-gap"],
+[data-slot="sidebar"] [data-slot="sidebar-container"] {
+    transition-duration: 0.05s;
+}
 .improved-attendance-sidebar-hidden [data-slot="sidebar"] [data-slot="sidebar-gap"] {
     width: 0;
 }
