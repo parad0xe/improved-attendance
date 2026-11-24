@@ -94,6 +94,7 @@ export class SidebarToggle {
         const sidebarElement = document.querySelector<HTMLElement>(SELECTORS.sidebar)
         if (sidebarElement) { sidebarElement.inert = this.isSidebarHidden }
         document.querySelector(SELECTORS.headerTitle)?.classList.toggle("improved-attendance-unlocked", this.versionClicks >= UNLOCK_CLICKS)
+        this.rootElement.hidden = !this.isUnlocked
         this.rootElement.setAttribute("aria-pressed", String(this.isSidebarHidden))
     }
 
