@@ -27,7 +27,7 @@ interface PageRenderOptions {
 }
 
 /**
- * Returns the text of the element at `selector`, and whether it exists.
+ * Returns the time shown by the element at `selector`, and whether it is found.
  * @param selector - the selector of an element that shows a time
  */
 function readTimeText(selector: string): [string, boolean] {
@@ -35,7 +35,14 @@ function readTimeText(selector: string): [string, boolean] {
     if (!element) {
         return ["00:00", false]
     }
-    return [element.textContent, true]
+
+    const text = element.textContent.replace("+", "").trim()
+
+    if (!/^\d{1,3}:\d{1,2}$/.test(text)) {
+        return ["00:00", false]
+    }
+
+    return [text, true]
 }
 
 /**
@@ -118,8 +125,8 @@ export class Page {
         return {
             loggedMonthMinutes: parseMinutes(loggedMonthText),
             monthGoalMinutes: parseMinutes(monthGoalText),
-            runningSessionMinutes: parseMinutes(runningSessionText.replace("+", "").trim()),
-            loggedTodayMinutes: parseMinutes(loggedTodayText.trim()),
+            runningSessionMinutes: parseMinutes(runningSessionText),
+            loggedTodayMinutes: parseMinutes(loggedTodayText),
             isSessionRunning: isTimerStarted,
         }
     }

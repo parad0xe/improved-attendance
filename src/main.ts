@@ -8,6 +8,7 @@ import SIDEBAR_TOGGLE_STYLE from "./ui/styles/sidebar-toggle.css"
 import SITE_DARK_STYLE from "./ui/styles/site-dark.css"
 import THEME_STYLE from "./ui/styles/theme.css"
 import THEME_SWITCH_STYLE from "./ui/styles/theme-switch.css"
+import { DashboardLink } from "./ui/dashboard-link"
 import { Page } from "./ui/page"
 import { Settings } from "./ui/settings"
 import { SidebarToggle } from "./ui/sidebar-toggle"
@@ -143,6 +144,7 @@ function main(): void {
     themeSwitch.mount()
 
     const sidebarToggle = new SidebarToggle(labels)
+    const dashboardLink = new DashboardLink(labels)
 
     const settings = new Settings({ lang, labels, themeSwitchElement: themeSwitch.rootElement })
     let isSettingsMounted = false
@@ -179,8 +181,9 @@ function main(): void {
     waitForHydration().then(() => {
         restartMonthImprovements()
         watchUrl(restartMonthImprovements)
-        // Mounted once the site is hydrated, as the button goes into its header.
+        // Mounted once the site is hydrated, as they go into its header and its sidebar.
         sidebarToggle.mount()
+        dashboardLink.mount()
     })
 }
 

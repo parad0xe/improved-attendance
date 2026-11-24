@@ -13,6 +13,7 @@ export interface Labels {
     SETTINGS_CAPSULES_TO_USE: string
 
     SIDEBAR_TOGGLE: string
+    SIDEBAR_DASHBOARD: string
 
     GAP_EXPECTED: (time: string) => string
     GAP_BONUS_DAYS: (days: number) => string
@@ -70,6 +71,7 @@ const LABELS: Record<string, Labels> = {
         SETTINGS_CAPSULES_TO_USE: "Capsules à poser",
 
         SIDEBAR_TOGGLE: "Afficher ou masquer la barre latérale",
+        SIDEBAR_DASHBOARD: "Tableau de bord",
 
         GAP_EXPECTED: (time) => `Prévu ${time}`,
         GAP_BONUS_DAYS: (days) => `${days.toFixed(1).replace(".", ",")} ${days < 2 ? "jour" : "jours"} bonus`,
@@ -130,6 +132,7 @@ const LABELS: Record<string, Labels> = {
         SETTINGS_CAPSULES_TO_USE: "Capsules to use",
 
         SIDEBAR_TOGGLE: "Show or hide the sidebar",
+        SIDEBAR_DASHBOARD: "Dashboard",
 
         GAP_EXPECTED: (time) => `Expected ${time}`,
         GAP_BONUS_DAYS: (days) => `${days.toFixed(1)} bonus ${days < 2 ? "day" : "days"}`,
